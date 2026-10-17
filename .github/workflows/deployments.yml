@@ -2,7 +2,7 @@
 # writes deployments.json: what is queued, running, stopped for a sign-off, and what ended in the last half hour. The
 # file is on branch "deployments": one commit, replaced (force-pushed) by a run that finds a change. The fleet health
 # dashboard reads it from the reader's browser, like every system's, at
-# https://raw.githubusercontent.com/clearmeasure-aisf-sample-apps/cmfleet-dashboard/deployments/deployments.json.
+# https://raw.githubusercontent.com/clearmeasure-aisf-sample-apps/demo-agentic-platform1-dashboard/deployments/deployments.json.
 # The script is the kit's (templates/system/scripts/write-deployments.ps1), copied here: this system has no
 # system.json, so the workflow names the system and its space.
 # It runs after every Build (a build of main hands a release to Octopus, which deploys it to tdd), on a five-minute
@@ -47,7 +47,7 @@ jobs:
 
       # One step writes and publishes, and stays while something is executing: it reads again every half minute, so
       # the file follows a deployment to its end. Nothing tells a workflow that a deployment ended, and GitHub started
-      # this five-minute schedule every twenty to thirty minutes (cmfleet, 2026-10-08): without the stay, a deployment
+      # this five-minute schedule every twenty to thirty minutes (agentpf1, 2026-10-08): without the stay, a deployment
       # that had ended was "executing" on every dashboard for up to half an hour. A deployment that waits for a
       # person or for its turn does not hold the run (that can last hours; the schedule covers it), and after twenty
       # minutes the run ends whatever is executing.
@@ -87,7 +87,7 @@ jobs:
           }
           stay=$((SECONDS + 1200))
           while :; do
-            pwsh -NoProfile -File ./platform/write-deployments.ps1 -Path "$WRITTEN" -System cmfleet -OctopusUrl "$OCTOPUS_URL" -Space "$OCTOPUS_SPACE_NAME"
+            pwsh -NoProfile -File ./platform/write-deployments.ps1 -Path "$WRITTEN" -System agentpf1 -OctopusUrl "$OCTOPUS_URL" -Space "$OCTOPUS_SPACE_NAME"
             publish
             executing=$(jq '[.deployments[] | select(.state == "executing")] | length' "$WRITTEN")
             if [ "$executing" -eq 0 ]; then break; fi
