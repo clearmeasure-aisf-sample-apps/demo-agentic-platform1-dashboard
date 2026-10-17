@@ -157,20 +157,23 @@ if (-not $identities.ExternalId) { throw "Octopus returned no ExternalId for $se
 
 $operator = Invoke-Api -Path '/api/users/me'
 $managers = @($account.Id, $operator.Id) | Select-Object -Unique
+# The instance team Octopus Managers holds Space Manager here too (the kit's decision 0058).
+$instanceManagers = 'teams-managers'
 $space = Get-Named -Path '/api/spaces' -Name $spaceName
 if (-not $space) {
     $space = Invoke-Api -Path '/api/spaces' -Method Post -Body @{
         Name                     = $spaceName
         Description              = "The fleet's own system: the fleet health dashboard, managed from $Repository (platform/)."
-        SpaceManagersTeams       = @()
+        SpaceManagersTeams       = @($instanceManagers)
         SpaceManagersTeamMembers = @($managers)
         IsDefault                = $false
         TaskQueueStopped         = $false
     }
     Write-Host "PASS created space $($space.Id) ($($space.Slug))"
 }
-elseif (@($managers | Where-Object { @($space.SpaceManagersTeamMembers) -notcontains $_ }).Count -gt 0) {
+elseif (@($managers | Where-Object { @($space.SpaceManagersTeamMembers) -notcontains $_ }).Count -gt 0 -or @($space.SpaceManagersTeams) -notcontains $instanceManagers) {
     $space.SpaceManagersTeamMembers = @(@($space.SpaceManagersTeamMembers) + $managers | Select-Object -Unique)
+    $space.SpaceManagersTeams = @(@($space.SpaceManagersTeams) + $instanceManagers | Select-Object -Unique)
     $space = Invoke-Api -Path "/api/spaces/$($space.Id)" -Method Put -Body $space
     Write-Host "PASS space $($space.Id): managers added"
 }
