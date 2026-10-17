@@ -27,7 +27,7 @@ resource groups 'Microsoft.Resources/resourceGroups@2024-03-01' = [
   for tier in tiers: {
     name: 'rg-agentpf1-${tier.name}'
     location: location
-    tags: { system: 'agentpf1', tier: tier.name, purpose: 'fleet health dashboard (demo-agentic-platform1-dashboard, platform/)' }
+    tags: { system: 'agentpf1', tier: tier.name, purpose: 'platform health dashboard (demo-agentic-platform1-dashboard, platform/)' }
   }
 ]
 

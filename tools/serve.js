@@ -1,4 +1,4 @@
-// Serves a built site for the tests, with the fleet's data taken from a directory instead of from where the fleet
+// Serves a built site for the tests, with the platform's data taken from a directory instead of from where the platform
 // publishes it: the page is then tested against data the test chose.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';

@@ -1,6 +1,6 @@
 {
   "generated": "2026-10-08T04:03:13Z",
-  "fleet": {
+  "platform": {
     "name": "Clear Measure demo systems",
     "repository": "clearmeasure-aisf-sample-apps/demo-environment-kit",
     "octopus": "https://clearmeasure.octopus.app",
@@ -185,10 +185,10 @@
         }
       ],
       "runbooks": [],
-      "observeOnly": "In the fleet to be seen on its dashboard. It was designed on its own and its differences are intended: the fleet records them and asks it to change nothing (Jeffrey, 2026-10-07)",
+      "observeOnly": "In the platform to be seen on its dashboard. It was designed on its own and its differences are intended: the platform records them and asks it to change nothing (Jeffrey, 2026-10-07)",
       "gaps": 0,
       "behind": [
-        "Deployments in flight: the system names no address of its deployments in flight (fleet.deployments of its registry file)"
+        "Deployments in flight: the system names no address of its deployments in flight (platform.deployments of its registry file)"
       ],
       "standards": [
         {
@@ -231,7 +231,7 @@
           "standard": "proof",
           "label": "Proofs",
           "status": "none",
-          "text": "the system has none of the fleet's proof runbooks (Restore test, Rotate SQL password and Failover test)"
+          "text": "the system has none of the platform's proof runbooks (Restore test, Rotate SQL password and Failover test)"
         },
         {
           "standard": "capability",
@@ -243,7 +243,7 @@
           "standard": "workflow",
           "label": "Builds and workflows",
           "status": "variance",
-          "text": "an intended variance of cfgitops (One verb per tool: Codefresh builds. The fleet reads its commit statuses and raises no finding for its Actions workflows (stated by its owner session, 2026-10-07))"
+          "text": "an intended variance of cfgitops (One verb per tool: Codefresh builds. The platform reads its commit statuses and raises no finding for its Actions workflows (stated by its owner session, 2026-10-07))"
         },
         {
           "standard": "schedules",
@@ -255,7 +255,7 @@
           "standard": "deployments",
           "label": "Deployments in flight",
           "status": "behind",
-          "text": "the system names no address of its deployments in flight (fleet.deployments of its registry file)"
+          "text": "the system names no address of its deployments in flight (platform.deployments of its registry file)"
         },
         {
           "standard": "idle",
@@ -307,7 +307,7 @@
           "observed": true
         }
       ],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+cfgitops",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+cfgitops",
       "variances": [
         {
           "variance": "Not built with the kit: its own environment repository, no system.json, apps that declare themselves in apps/<app>.yaml",
@@ -317,7 +317,7 @@
         },
         {
           "variance": "Builds run in Codefresh, not in GitHub Actions",
-          "reason": "One verb per tool: Codefresh builds, Octopus releases, Argo CD applies (README of its environment repository). The fleet reads its builds as commit statuses",
+          "reason": "One verb per tool: Codefresh builds, Octopus releases, Argo CD applies (README of its environment repository). The platform reads its builds as commit statuses",
           "rule": "",
           "project": ""
         },
@@ -365,7 +365,7 @@
         },
         {
           "variance": "Production is frozen every weekend, Saturday 00:00 to Monday 00:00 UTC; promotion is otherwise automatic",
-          "reason": "A standing deployment freeze. The fleet allows its environments 72 hours behind the first one instead of 24 (fleet.promotionLagHours), so a weekend is not a finding (stated by its owner session, 2026-10-07)",
+          "reason": "A standing deployment freeze. The platform allows its environments 72 hours behind the first one instead of 24 (platform.promotionLagHours), so a weekend is not a finding (stated by its owner session, 2026-10-07)",
           "rule": "",
           "project": ""
         },
@@ -377,7 +377,7 @@
         },
         {
           "variance": "GitHub Actions workflows are not its gates: codefresh/ci, codefresh/release and codefresh/env-checks are. The app repository still has a legacy Actions build whose job Publish Release Candidate fails on every run",
-          "reason": "One verb per tool: Codefresh builds. The fleet reads its commit statuses and raises no finding for its Actions workflows (stated by its owner session, 2026-10-07)",
+          "reason": "One verb per tool: Codefresh builds. The platform reads its commit statuses and raises no finding for its Actions workflows (stated by its owner session, 2026-10-07)",
           "rule": "workflow",
           "project": ""
         }
@@ -698,7 +698,7 @@
           "observed": false
         }
       ],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+cmdemo1",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+cmdemo1",
       "variances": [
         {
           "variance": "The image build of cmdemo1-aisf reads the Aisf packages with the operator account's token (Actions secret AISF_PACKAGES_TOKEN), not with an App the organization owns",
@@ -979,7 +979,7 @@
           "observed": false
         }
       ],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+cmdemo2",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+cmdemo2",
       "variances": [],
       "notRead": [],
       "parts": [
@@ -1309,7 +1309,7 @@
           "observed": false
         }
       ],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+cmdemo3",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+cmdemo3",
       "variances": [],
       "notRead": [],
       "parts": [
@@ -1330,21 +1330,21 @@
       }
     },
     {
-      "slug": "cmfleet",
-      "name": "Fleet health dashboard",
+      "slug": "cmplatform",
+      "name": "Platform health dashboard",
       "owner": "Platform Hub",
       "state": "behind",
       "kitBuilt": false,
-      "repository": "clearmeasure-aisf-sample-apps/cmfleet-dashboard",
-      "repositoryUrl": "https://github.com/clearmeasure-aisf-sample-apps/cmfleet-dashboard",
+      "repository": "clearmeasure-aisf-sample-apps/cmplatform-dashboard",
+      "repositoryUrl": "https://github.com/clearmeasure-aisf-sample-apps/cmplatform-dashboard",
       "space": {
-        "name": "cmfleet",
+        "name": "cmplatform",
         "url": "https://clearmeasure.octopus.app/app#/Spaces-378",
         "activity": "idle"
       },
-      "dashboard": "https://stcmfleetprodw35dyr.z19.web.core.windows.net",
+      "dashboard": "https://stcmplatformprodw35dyr.z19.web.core.windows.net",
       "runtimeView": "",
-      "health": "https://stcmfleetprodw35dyr.z19.web.core.windows.net/health.json",
+      "health": "https://stcmplatformprodw35dyr.z19.web.core.windows.net/health.json",
       "deployments": "",
       "asleep": false,
       "environments": [
@@ -1363,7 +1363,7 @@
       ],
       "projects": [
         {
-          "name": "cmfleet-dashboard",
+          "name": "cmplatform-dashboard",
           "environments": [
             {
               "name": "tdd",
@@ -1396,20 +1396,20 @@
       "observeOnly": "",
       "gaps": 0,
       "behind": [
-        "Deployments in flight: the system names no address of its deployments in flight (fleet.deployments of its registry file)"
+        "Deployments in flight: the system names no address of its deployments in flight (platform.deployments of its registry file)"
       ],
       "standards": [
         {
           "standard": "registry",
           "label": "Registry",
           "status": "exempt",
-          "text": "clearmeasure-aisf-sample-apps/cmfleet-dashboard has no system.json (the system was not built with the kit)"
+          "text": "clearmeasure-aisf-sample-apps/cmplatform-dashboard has no system.json (the system was not built with the kit)"
         },
         {
           "standard": "templates",
           "label": "Kit templates",
           "status": "exempt",
-          "text": "cmfleet does not follow the kit's templates (made by hand, not from the kit's templates: one repository (cmfleet-dashboard) holds the application, the way a release is deployed (deploy/) and the system's plumbing (platform/). What it is made of is its own (principle 007): one storage account per environment that serves a static website)"
+          "text": "cmplatform does not follow the kit's templates (made by hand, not from the kit's templates: one repository (cmplatform-dashboard) holds the application, the way a release is deployed (deploy/) and the system's plumbing (platform/). What it is made of is its own (principle 007): one storage account per environment that serves a static website)"
         },
         {
           "standard": "code metrics",
@@ -1439,31 +1439,31 @@
           "standard": "proof",
           "label": "Proofs",
           "status": "none",
-          "text": "the system has none of the fleet's proof runbooks (Restore test, Rotate SQL password and Failover test)"
+          "text": "the system has none of the platform's proof runbooks (Restore test, Rotate SQL password and Failover test)"
         },
         {
           "standard": "capability",
           "label": "Capability checks",
           "status": "none",
-          "text": "clearmeasure-aisf-sample-apps/cmfleet-dashboard has no workflow capabilities, so nothing proves its capabilities night by night"
+          "text": "clearmeasure-aisf-sample-apps/cmplatform-dashboard has no workflow capabilities, so nothing proves its capabilities night by night"
         },
         {
           "standard": "workflow",
           "label": "Builds and workflows",
           "status": "met",
-          "text": "no workflow or commit status of 2 in cmfleet-dashboard has been failed for 2 hours or more"
+          "text": "no workflow or commit status of 2 in cmplatform-dashboard has been failed for 2 hours or more"
         },
         {
           "standard": "schedules",
           "label": "Scheduled workflows",
           "status": "none",
-          "text": "no workflow of clearmeasure-aisf-sample-apps/cmfleet-dashboard starts on a schedule the fleet reads"
+          "text": "no workflow of clearmeasure-aisf-sample-apps/cmplatform-dashboard starts on a schedule the platform reads"
         },
         {
           "standard": "deployments",
           "label": "Deployments in flight",
           "status": "behind",
-          "text": "the system names no address of its deployments in flight (fleet.deployments of its registry file)"
+          "text": "the system names no address of its deployments in flight (platform.deployments of its registry file)"
         },
         {
           "standard": "idle",
@@ -1479,7 +1479,7 @@
         }
       ],
       "findings": [],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+cmfleet",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+cmplatform",
       "variances": [
         {
           "variance": "No system repository: the application's repository holds the plumbing too, and the registry file stays in the kit",
@@ -1676,7 +1676,7 @@
           "standard": "proof",
           "label": "Proofs",
           "status": "none",
-          "text": "the system has none of the fleet's proof runbooks (Restore test, Rotate SQL password and Failover test)"
+          "text": "the system has none of the platform's proof runbooks (Restore test, Rotate SQL password and Failover test)"
         },
         {
           "standard": "capability",
@@ -1724,7 +1724,7 @@
           "observed": false
         }
       ],
-      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Afleet-finding+jpcom",
+      "findingsUrl": "https://github.com/clearmeasure-aisf-sample-apps/demo-environment-kit/issues?q=is%3Aopen+label%3Aplatform-finding+jpcom",
       "variances": [
         {
           "variance": "The operator account (a machine user) administers the app repository jeffreypalermo-sites/jeffreypalermo.com, which existed before the system: phase 4 set variables, an environment and a ruleset there and merged its own pull request",
@@ -1957,7 +1957,7 @@
     "findings": [],
     "cost": [
       {
-        "of": "the fleet",
+        "of": "the platform",
         "monthToDate": "122.68",
         "currency": "USD"
       },

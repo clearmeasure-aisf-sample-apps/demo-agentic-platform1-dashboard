@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "description": "What one environment of the fleet health dashboard is made of: one storage account that serves the site's files as a static website. No key opens it: shared keys are off, and the release writes the files as the tier's deploy identity (Storage Blob Data Contributor on the resource group, platform/azure.bicep). The website itself is switched on by the release (deploy/deploy.ps1): Azure Resource Manager has no property for it."
+    "description": "What one environment of the platform health dashboard is made of: one storage account that serves the site's files as a static website. No key opens it: shared keys are off, and the release writes the files as the tier's deploy identity (Storage Blob Data Contributor on the resource group, platform/azure.bicep). The website itself is switched on by the release (deploy/deploy.ps1): Azure Resource Manager has no property for it."
   },
   "parameters": {
     "environmentName": { "type": "string" },

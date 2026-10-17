@@ -2,7 +2,7 @@
   "name": "demo-agentic-platform1-dashboard",
   "version": "0.0.0",
   "private": true,
-  "description": "The fleet health dashboard: every system of the fleet on one page.",
+  "description": "The platform health dashboard: every system of the platform on one page.",
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {

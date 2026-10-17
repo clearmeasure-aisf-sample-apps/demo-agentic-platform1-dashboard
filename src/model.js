@@ -1,7 +1,7 @@
-// What the wall says about the fleet's data, with no page in it: every function here takes data and a time and
+// What the wall says about the platform's data, with no page in it: every function here takes data and a time and
 // returns what to show, so it is tested without a browser.
 
-// The fleet writes its data every six hours. Data older than two refreshes is not a reading any more.
+// The platform writes its data every six hours. Data older than two refreshes is not a reading any more.
 export const REFRESH_HOURS = 6;
 export const STALE_AFTER_HOURS = 2 * REFRESH_HOURS;
 
@@ -16,7 +16,7 @@ export const STATE_WORDS = {
   ok: 'As declared',
 };
 
-// The fleet's times are UTC: "2026-10-07T04:48:18Z" for a reading, "2026-10-07 04:28" for a deployment.
+// The platform's times are UTC: "2026-10-07T04:48:18Z" for a reading, "2026-10-07 04:28" for a deployment.
 // Anything else is not a time: the engine's own reading of a date is too forgiving to trust with a reading's age.
 const UTC_TIME = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(:\d{2}(?:\.\d+)?)?Z?$/;
 
@@ -76,7 +76,7 @@ export function displayState(system, stale) {
   return system.asleep ? 'asleep' : 'ok';
 }
 
-// Where a system stands on one standard, in the words the wall uses. The fleet's own word is kept for a status the
+// Where a system stands on one standard, in the words the wall uses. The platform's own word is kept for a status the
 // wall does not know yet.
 export const STANDING_WORDS = {
   critical: 'production affected',
@@ -92,8 +92,8 @@ export const STANDING_WORDS = {
   met: 'met',
 };
 
-// Every standard of the fleet for one system: its name, how the system stands on it and the fleet's words for why.
-// Data written before the fleet recorded this has none.
+// Every standard of the platform for one system: its name, how the system stands on it and the platform's words for why.
+// Data written before the platform recorded this has none.
 export function standing(system) {
   return (system.standards || []).map((row) => ({
     label: row.label || row.standard,
@@ -150,7 +150,7 @@ export function prodRows(system, now) {
   return rows.sort((a, b) => (a.age ?? Infinity) - (b.age ?? Infinity));
 }
 
-// How a release stands in its environment: failed, in progress (its deployment had not ended when the fleet read it:
+// How a release stands in its environment: failed, in progress (its deployment had not ended when the platform read it:
 // the release is not there yet, and has no time), or deployed. Whether a deployed release waits to be promoted is
 // said afterwards, beside the next environment (releaseGrid).
 function cellKind(environment) {
@@ -214,14 +214,14 @@ export function releaseWord(cell) {
   return cell.kind === 'waits' ? `deployed, waits for promotion${cell.next ? ` to ${cell.next}` : ''}` : 'deployed';
 }
 
-// Under a release in the grid: when its deployment finished, or that it had not when the fleet read it. Never
+// Under a release in the grid: when its deployment finished, or that it had not when the platform read it. Never
 // nothing for a release that was being deployed.
 export function cellWhen(cell, timeZone) {
   return cell.kind === 'progress' ? IN_PROGRESS : formatWhen(cell.finished, timeZone);
 }
 
 export function cellTitle(cell) {
-  if (cell.kind === 'progress') return cell.started ? `started ${cell.started} UTC, not finished when the fleet read it` : 'not finished when the fleet read it';
+  if (cell.kind === 'progress') return cell.started ? `started ${cell.started} UTC, not finished when the platform read it` : 'not finished when the platform read it';
   const waits = cell.kind === 'waits' && cell.next ? `waits for promotion to ${cell.next}` : '';
   return [cell.finished ? `finished ${cell.finished} UTC` : '', waits].filter(Boolean).join('; ');
 }
@@ -233,10 +233,10 @@ export function findText(system) {
 
 export const matches = (system, typed) => findText(system).includes((typed || '').trim().toLowerCase());
 
-export function fleetFacts(data, now) {
+export function platformFacts(data, now) {
   const stale = isStale(data.generated, now);
   const states = data.systems.map((system) => displayState(system, stale));
-  const total = (data.shared.cost || []).find((cost) => cost.of === 'the fleet');
+  const total = (data.shared.cost || []).find((cost) => cost.of === 'the platform');
   const sum = (key) => data.systems.reduce((count, system) => count + counts(system)[key], 0);
   return {
     stale,
@@ -266,20 +266,20 @@ export function systemLink(system) {
 
 // Where a box of the landscape leads that is not a system: the thing it stands for, in the tool that holds it. The
 // operators' box leads to what they act on, the findings. The subscription leads to the Azure portal: to the
-// subscription itself when the fleet's data names its address there, otherwise to the reader's resource groups.
+// subscription itself when the platform's data names its address there, otherwise to the reader's resource groups.
 // None of these pages lets itself be shown inside another page, so they open beside this one.
 export const AZURE_PORTAL = 'https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups';
 
 export function boxLinks(data) {
-  const fleet = data.fleet || {};
-  const kit = fleet.repository ? `https://github.com/${fleet.repository}` : '';
+  const platform = data.platform || {};
+  const kit = platform.repository ? `https://github.com/${platform.repository}` : '';
   const links = {
-    operators: kit ? `${kit}/issues?q=is%3Aissue+state%3Aopen+label%3Afleet-finding` : '',
-    fleet: kit ? `${kit}/tree/main/fleet` : '',
-    octopus: fleet.octopus || '',
+    operators: kit ? `${kit}/issues?q=is%3Aissue+state%3Aopen+label%3Aplatform-finding` : '',
+    platform: kit ? `${kit}/tree/main/platform` : '',
+    octopus: platform.octopus || '',
     kit: kit ? `${kit}/tree/green` : '',
-    policies: fleet.policies ? `https://github.com/${fleet.policies}` : '',
-    subscription: fleet.azurePortal || AZURE_PORTAL,
+    policies: platform.policies ? `https://github.com/${platform.policies}` : '',
+    subscription: platform.azurePortal || AZURE_PORTAL,
   };
   return Object.fromEntries(Object.entries(links).filter(([, url]) => url));
 }
@@ -289,22 +289,22 @@ export function hostOf(url) {
   try { return new URL(url).host; } catch { return ''; }
 }
 
-// Where a system is in Azure: each resource group the fleet's data names for it, with its address in the portal. A
+// Where a system is in Azure: each resource group the platform's data names for it, with its address in the portal. A
 // system the data names no group for leads to the subscription, when the data names that; otherwise nowhere.
-export function azureLinks(system, fleet) {
+export function azureLinks(system, platform) {
   const groups = (system.azure || []).filter((one) => one.group && one.url);
   if (groups.length) return groups.map((one) => ({ text: `Azure: ${one.group}`, url: one.url }));
-  return fleet?.azurePortal ? [{ text: 'Azure subscription', url: fleet.azurePortal }] : [];
+  return platform?.azurePortal ? [{ text: 'Azure subscription', url: platform.azurePortal }] : [];
 }
 
 // A system with nothing to zoom into still leads somewhere: its space in Octopus, where what it runs is shown, or its
-// repository when the fleet read no space.
+// repository when the platform read no space.
 export function systemDoor(system) {
   return system.space?.url || system.repositoryUrl || '';
 }
 
 // What a system's box says beyond its name (decision 0030 of the kit). Each is a line or a row of tiles, short
-// enough for a box, and nothing where the fleet read nothing.
+// enough for a box, and nothing where the platform read nothing.
 
 // Where the system stands in each of its environments: the worst of what its projects' last deployments there say.
 // Failed comes before a release that waits to be promoted, and that before deployed; none where no project has a
@@ -354,7 +354,7 @@ export function standardsLine(system) {
 
 export const costLine = (system) => (system.cost ? `${system.cost.monthToDate} ${system.cost.currency}` : '');
 
-// The landscape as the page draws it: who watches, the fleet's oversight, the subscription with every system in it,
+// The landscape as the page draws it: who watches, the platform's oversight, the subscription with every system in it,
 // and what the systems share. Each box says what it is, the state of what it stands for where it has one, and where
 // it leads: a system zooms into its own dashboard (zoom), everything else opens what it stands for (open).
 export function landscape(data, stale, now) {
@@ -380,8 +380,8 @@ export function landscape(data, stale, now) {
     ...(instanceLine(service, stale) ? { acts: instanceLine(service, stale) } : {}),
   }));
   return {
-    operators: { name: 'operators', title: 'Operators', text: 'watch the fleet and act on what needs attention', zoom: '', open: links.operators || '' },
-    fleet: { name: 'fleet', title: data.fleet?.name || 'The fleet', text: 'Fleet oversight: the registry, the rules and the findings', zoom: '', open: links.fleet || '' },
+    operators: { name: 'operators', title: 'Operators', text: 'watch the platform and act on what needs attention', zoom: '', open: links.operators || '' },
+    platform: { name: 'platform', title: data.platform?.name || 'The platform', text: 'Platform oversight: the registry, the rules and the findings', zoom: '', open: links.platform || '' },
     subscription: { name: 'subscription', title: 'Azure subscription', text: 'where the systems run', open: links.subscription },
     systems,
     services,
@@ -396,7 +396,7 @@ export function boxTitle(box) {
   return box.open ? `${state}. Opens ${hostOf(box.open)} in a new tab` : state;
 }
 
-// A title the fleet wrote starts with the system's name; on the system's own tile that is said already.
+// A title the platform wrote starts with the system's name; on the system's own tile that is said already.
 export function withoutSlug(title, slug) {
   return title.startsWith(`${slug}: `) ? title.slice(slug.length + 2) : title;
 }
@@ -469,14 +469,14 @@ export function flightState(marks) {
 }
 
 // Activity: what happens in a system now and what just happened. Two sources say it. The system's own file
-// (deployments.json, read every minute) is of the last minutes; the fleet's reading of Octopus ("activity" of
-// fleet.json) is up to six hours old, and is the only one for a system that publishes no file, and the only one that
+// (deployments.json, read every minute) is of the last minutes; the platform's reading of Octopus ("activity" of
+// platform.json) is up to six hours old, and is the only one for a system that publishes no file, and the only one that
 // knows a freeze, who is responsible for a sign-off and who started a deployment. They are never both shown about
 // the same thing: where the system's file was read, what is in flight comes from it alone.
 
-// For how long the fleet's own reading of what is in flight is said in the present tense. A deployment takes
+// For how long the platform's own reading of what is in flight is said in the present tense. A deployment takes
 // minutes; after this, what was executing then has most likely ended, and the page says "was".
-export const FLEET_FRESH_MINUTES = 30;
+export const PLATFORM_FRESH_MINUTES = 30;
 export const ACTIVITY_LINES = 2;
 
 const flightRank = (state) => (FLIGHT_ORDER.indexOf(state) + 1) || FLIGHT_ORDER.length + 1;
@@ -488,19 +488,19 @@ export function shortProject(name, slug) {
   return name && slug && name.startsWith(prefix) && name.length > prefix.length ? name.slice(prefix.length) : name || '';
 }
 
-// What the fleet read as in flight, in the words of the card: present tense while the reading is fresh, past tense
+// What the platform read as in flight, in the words of the card: present tense while the reading is fresh, past tense
 // with its age after that.
-export function fleetText(mark) {
+export function platformText(mark) {
   const what = `${mark.project} ${mark.release}`;
   if (!mark.past) return mark.state === 'waiting' && mark.waitsFor === 'guided failure' ? `${what} waits for a person in ${mark.environment}` : deploymentText(mark);
-  const when = mark.read === null ? 'when the fleet read it' : `when the fleet read it ${formatAge(mark.read / 60)} ago`;
+  const when = mark.read === null ? 'when the platform read it' : `when the platform read it ${formatAge(mark.read / 60)} ago`;
   if (mark.state === 'waiting') return `${what} waited for ${personWaitedFor(mark)} in ${mark.environment} ${when}`;
   return mark.state === 'queued' ? `${what} was queued for ${mark.environment} ${when}` : `${what} was deploying to ${mark.environment} ${when}`;
 }
 
-// The fleet's own reading of a system's deployments in flight, as marks of the shape deploymentMarks gives. A mark
-// is "past" when the reading is older than FLEET_FRESH_MINUTES or has no time.
-export function fleetMarks(system, now) {
+// The platform's own reading of a system's deployments in flight, as marks of the shape deploymentMarks gives. A mark
+// is "past" when the reading is older than PLATFORM_FRESH_MINUTES or has no time.
+export function platformMarks(system, now) {
   const activity = system.activity;
   const entries = Array.isArray(activity?.inFlight) ? activity.inFlight : [];
   const readHours = ageHours(activity?.read, now);
@@ -512,28 +512,28 @@ export function fleetMarks(system, now) {
     const mark = {
       project: entry.project, environment: entry.environment, release: entry.release, state: entry.state,
       url: entry.url || '', ended: false, minutes: hours === null ? null : Math.round(hours * 60),
-      source: 'fleet', past: read === null || read > FLEET_FRESH_MINUTES, read,
+      source: 'platform', past: read === null || read > PLATFORM_FRESH_MINUTES, read,
       waitsFor: waits.kind, responsible: waits.responsible, startedBy: entry.startedBy || '',
     };
-    return { ...mark, text: fleetText(mark) };
+    return { ...mark, text: platformText(mark) };
   }).sort((a, b) => flightRank(a.state) - flightRank(b.state));
 }
 
-// What to mark for one system. The system's own file wins: where it was read, nothing of the fleet's older reading
-// of what is in flight is used. Where a system publishes none (or it could not be read), the fleet's reading is,
-// unless the fleet's data is too old to be a reading at all.
+// What to mark for one system. The system's own file wins: where it was read, nothing of the platform's older reading
+// of what is in flight is used. Where a system publishes none (or it could not be read), the platform's reading is,
+// unless the platform's data is too old to be a reading at all.
 export function flightMarks(system, file, now, stale) {
   if (file) return deploymentMarks(file, now).map((mark) => ({ ...mark, source: 'system' }));
-  return stale ? [] : fleetMarks(system, now);
+  return stale ? [] : platformMarks(system, now);
 }
 
-// What is in flight now, as far as the page may claim it: not what ended, and not what the fleet read too long ago.
+// What is in flight now, as far as the page may claim it: not what ended, and not what the platform read too long ago.
 export const liveMarks = (marks) => marks.filter((mark) => !mark.ended && !mark.past);
 
-const SOURCE_WORDS = { system: 'the system\'s own deployments.json', fleet: 'the fleet\'s reading of Octopus' };
+const SOURCE_WORDS = { system: 'the system\'s own deployments.json', platform: 'the platform\'s reading of Octopus' };
 
 // One deployment in flight as a line of the system's box: "prod waits for a sign-off, 12 min",
-// "deploying ui 2.4.76 to uat", "ui 2.4.76 queued for uat"; in the past tense for an old reading of the fleet.
+// "deploying ui 2.4.76 to uat", "ui 2.4.76 queued for uat"; in the past tense for an old reading of the platform.
 export function flightLine(mark, slug) {
   const what = `${shortProject(mark.project, slug)} ${mark.release}`;
   const title = [mark.text, mark.responsible ? `responsible: ${mark.responsible}` : '', mark.startedBy ? `started by ${mark.startedBy}` : ''].filter(Boolean).join('; ');
@@ -548,7 +548,7 @@ export function flightLine(mark, slug) {
   return line('queued', mark.state === 'queued' ? `${what} queued for ${mark.environment}` : `${what} in ${mark.environment}: ${mark.state}`);
 }
 
-// A time of a freeze, short enough for a box and in UTC, as the fleet's data is: "Mon 00:00 UTC", or with the date
+// A time of a freeze, short enough for a box and in UTC, as the platform's data is: "Mon 00:00 UTC", or with the date
 // when it is more than six days away and the day of the week would not say which.
 export function formatUntil(text, now) {
   const time = parseUtc(text);
@@ -564,7 +564,7 @@ function freezeText(freeze, active, now) {
   return active ? `${where} frozen until ${formatUntil(freeze.to, now)}` : `${where} freezes ${formatUntil(freeze.from, now)}`;
 }
 
-// The deployment freezes the fleet read for a system, as lines: "prod frozen until Mon 00:00 UTC" while one is in
+// The deployment freezes the platform read for a system, as lines: "prod frozen until Mon 00:00 UTC" while one is in
 // force, "prod freezes Sat 00:00 UTC" before it begins. One that is over is not said; freezes that say the same
 // (two projects frozen for the same days) are one line. The one in force first, then the one that begins first.
 export function freezeLines(system, now) {
@@ -578,21 +578,21 @@ export function freezeLines(system, now) {
     const about = [`"${freeze.name}"`, ...(freeze.projects?.length ? [`(${freeze.projects.join(', ')})`] : [])].join(' ');
     const same = lines.find((line) => line.text === text);
     if (same) same.names.push(about);
-    else lines.push({ kind: 'freeze', text, names: [about], active, from: from.getTime(), until: `${freeze.from} to ${freeze.to}`, source: 'fleet' });
+    else lines.push({ kind: 'freeze', text, names: [about], active, from: from.getTime(), until: `${freeze.from} to ${freeze.to}`, source: 'platform' });
   }
   return lines.sort((a, b) => Number(b.active) - Number(a.active) || a.from - b.from)
-    .map((line) => ({ kind: line.kind, text: line.text, title: `Deployment freeze ${line.names.join(', ')}: ${line.until} (${SOURCE_WORDS.fleet})`, source: line.source }));
+    .map((line) => ({ kind: line.kind, text: line.text, title: `Deployment freeze ${line.names.join(', ')}: ${line.until} (${SOURCE_WORDS.platform})`, source: line.source }));
 }
 
 // The last thing that happened, for a system with nothing in flight: the newest of what the system's own file says
-// ended and of what the fleet read. "last: ui 2.4.75 to prod, 20 min ago".
+// ended and of what the platform read. "last: ui 2.4.75 to prod, 20 min ago".
 export function lastLine(system, marks, now, stale) {
   const ended = marks.filter((mark) => mark.ended && mark.minutes !== null).map((mark) => ({
     project: mark.project, release: mark.release, environment: mark.environment, result: mark.state, minutes: mark.minutes, startedBy: '', source: mark.source || 'system',
   }));
   const recent = stale ? null : (system.activity?.recent || [])[0];
   const hours = recent ? ageHours(recent.finished, now) : null;
-  if (hours !== null) ended.push({ project: recent.project, release: recent.release, environment: recent.environment, result: recent.result, minutes: Math.round(hours * 60), startedBy: recent.startedBy || '', source: 'fleet' });
+  if (hours !== null) ended.push({ project: recent.project, release: recent.release, environment: recent.environment, result: recent.result, minutes: Math.round(hours * 60), startedBy: recent.startedBy || '', source: 'platform' });
   if (!ended.length) return null;
   const last = ended.reduce((newest, one) => (one.minutes < newest.minutes ? one : newest));
   const what = `${shortProject(last.project, system.slug)} ${last.release}`;
@@ -607,7 +607,7 @@ export function lastLine(system, marks, now, stale) {
 }
 
 // What a system's box says about its activity: at most two lines, the most urgent first. What waits for a person,
-// then what is deploying, then what is queued, then a freeze, then what the fleet read as in flight too long ago to
+// then what is deploying, then what is queued, then a freeze, then what the platform read as in flight too long ago to
 // claim it of now; and where nothing is in flight, the last thing that happened. Nothing where nothing was read.
 export function activityLines(system, marks, now, stale) {
   const flying = marks.filter((mark) => !mark.ended);
@@ -651,7 +651,7 @@ export function flightWord(name, state) {
 }
 
 // What the Octopus instance is doing, beside its count against the task cap: "2 running · 1 waits for a person".
-// A number the fleet's account could not read is left out, and so is a zero that would only take room.
+// A number the platform's account could not read is left out, and so is a zero that would only take room.
 export function instanceLine(service, stale) {
   const activity = service.activity;
   if (!activity || stale) return '';

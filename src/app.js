@@ -1,8 +1,8 @@
-// The page: reads the fleet's data and its landscape from where the fleet publishes them, and draws the wall. What
+// The page: reads the platform's data and its landscape from where the platform publishes them, and draws the wall. What
 // each thing means is decided in model.js; this file only puts it on the page.
 import { initZoom, openFromAddress } from './zoom.js';
 import {
-  STATE_WORDS, activityLines, asked, azureLinks, behindReasons, boxLinks, boxTitle, cellFlights, cellKey, cellTitle, cellWhen, counts, displayState, flightMarks, flightState, flightWord, fleetFacts, formatAge, healthWord,
+  STATE_WORDS, activityLines, asked, azureLinks, behindReasons, boxLinks, boxTitle, cellFlights, cellKey, cellTitle, cellWhen, counts, displayState, flightMarks, flightState, flightWord, platformFacts, formatAge, healthWord,
   isStale, landscape, limitShare, limitsInUse, liveMarks, matches, observed, releaseGrid, releaseWord, serviceState, standing, standingSummary, systemDoor, systemLink, tileFlights, withoutSlug,
 } from './model.js';
 
@@ -29,10 +29,10 @@ async function readJson(url) {
 }
 
 function drawFacts(data, facts) {
-  byId('fleet-name').textContent = data.fleet.name;
+  byId('platform-name').textContent = data.platform.name;
   byId('as-of').textContent = facts.stale
-    ? `The fleet's data is ${formatAge(facts.age)} old, older than two of its six-hourly readings: nothing below is a reading of now.`
-    : `Read ${formatAge(facts.age)} ago. Deployments from Octopus, findings from the fleet's rules, cost from Azure for the month to date.`;
+    ? `The platform's data is ${formatAge(facts.age)} old, older than two of its six-hourly readings: nothing below is a reading of now.`
+    : `Read ${formatAge(facts.age)} ago. Deployments from Octopus, findings from the platform's rules, cost from Azure for the month to date.`;
   byId('as-of').classList.toggle('stale', facts.stale);
   const list = [
     [String(facts.systems), 'systems', ''],
@@ -51,14 +51,14 @@ function drawFacts(data, facts) {
 }
 
 // What a system's box says beyond its name: what it is made of, where it stands in each environment, what production
-// runs, what is happening there, its state in words, two numbers, and whether it follows the kit. A line the fleet
+// runs, what is happening there, its state in words, two numbers, and whether it follows the kit. A line the platform
 // read nothing for is left out. The activity of a system is filled in by drawActivity, every minute; that of the
-// Octopus instance is a line of the fleet's own reading.
+// Octopus instance is a line of the platform's own reading.
 function drawBoxFacts(box) {
   const line = (kind, text) => (text ? el('span', { class: kind, text }) : null);
   const tiles = (box.tiles || []).map((tile) => el('span', { class: `env ${tile.kind}`, title: tile.word, 'data-env': tile.name, 'data-stands': tile.word }, [el('i', { role: 'img', 'aria-label': tile.word }), el('span', { text: tile.name })]));
   const acts = Array.isArray(box.tiles) ? el('span', { class: 'acts', hidden: 'hidden' })
-    : box.acts ? el('span', { class: 'acts' }, [el('span', { class: 'act act-instance num', title: 'As the fleet read it from Octopus', text: box.acts })]) : null;
+    : box.acts ? el('span', { class: 'acts' }, [el('span', { class: 'act act-instance num', title: 'As the platform read it from Octopus', text: box.acts })]) : null;
   return [
     line('made', box.madeOf),
     tiles.length ? el('span', { class: 'envs' }, tiles) : null,
@@ -84,8 +84,8 @@ function drawBox(box, kind) {
 
 const drawRel = (text, direction) => el('span', { class: `scape-rel ${direction}` }, [el('span', { class: 'arrow', 'aria-hidden': 'true', text: direction === 'down' ? '▼' : '▶' }), text]);
 
-// The landscape is drawn here, from the fleet's data: boxes that wrap to the width of the page, in the page's own
-// colours and type. The fleet's C4 drawing of the same thing stays where the fleet publishes it.
+// The landscape is drawn here, from the platform's data: boxes that wrap to the width of the page, in the page's own
+// colours and type. The platform's C4 drawing of the same thing stays where the platform publishes it.
 function drawLandscape(data, facts, now) {
   const scape = landscape(data, facts.stale, now);
   const frame = el('section', { class: 'cluster', 'data-box': 'subscription', 'aria-label': 'Azure subscription' }, [
@@ -99,8 +99,8 @@ function drawLandscape(data, facts, now) {
   ]);
   const service = (name) => scape.services.find((one) => one.name === name);
   const others = scape.services.filter((one) => !['octopus', 'policies', 'kit'].includes(one.name));
-  byId('landscape').replaceChildren(el('div', { class: 'scape', role: 'group', 'aria-label': 'System landscape of the fleet' }, [
-    el('div', { class: 'scape-row' }, [drawBox(scape.operators, 'person'), drawRel('reads the wall', 'right'), drawBox(scape.fleet, 'system')]),
+  byId('landscape').replaceChildren(el('div', { class: 'scape', role: 'group', 'aria-label': 'System landscape of the platform' }, [
+    el('div', { class: 'scape-row' }, [drawBox(scape.operators, 'person'), drawRel('reads the wall', 'right'), drawBox(scape.platform, 'system')]),
     el('div', { class: 'scape-rels' }, [drawRel('reads every system, and changes nothing', 'down')]),
     frame,
     el('div', { class: 'scape-rels' }, [
@@ -141,18 +141,18 @@ function drawReleases(system) {
   return { count: grid.rows.length, grid: el('div', { class: 'grid-wrap' }, [table]) };
 }
 
-// Where the system stands on every standard of the fleet, with the fleet's own words for why.
+// Where the system stands on every standard of the platform, with the platform's own words for why.
 function drawStanding(system) {
   const rows = standing(system);
   if (!rows.length) return null;
-  const table = el('table', { class: 'standards' }, [el('tr', {}, [el('th', { text: 'Standard' }), el('th', { text: 'Stands' }), el('th', { text: 'What the fleet read' })])]);
+  const table = el('table', { class: 'standards' }, [el('tr', {}, [el('th', { text: 'Standard' }), el('th', { text: 'Stands' }), el('th', { text: 'What the platform read' })])]);
   for (const row of rows) {
     table.append(el('tr', { 'data-status': row.status }, [el('td', { text: row.label }), el('td', { class: 'stands', text: row.word }), el('td', { class: 'why', text: row.text })]));
   }
   return el('div', { class: 'grid-wrap' }, [table]);
 }
 
-function drawLinks(system, fleet) {
+function drawLinks(system, platform) {
   const fee = system.parts.filter((part) => !/registry/i.test(part.part)).length;
   const link = (url, text) => (url ? el('a', { href: url, text }) : null);
   return [
@@ -165,14 +165,14 @@ function drawLinks(system, fleet) {
       link(system.runtimeView, 'Runtime view'),
       link(system.dashboard, 'Its dashboard') || el('span', { class: 'sub', text: 'No dashboard of its own' }),
       link(system.repositoryUrl, 'Repository'), link(system.space?.url, 'Octopus space'), link(system.findingsUrl, 'Findings'),
-      ...azureLinks(system, fleet).map((one) => el('a', { href: one.url, target: '_blank', rel: 'noopener', text: one.text })),
+      ...azureLinks(system, platform).map((one) => el('a', { href: one.url, target: '_blank', rel: 'noopener', text: one.text })),
     ]),
   ];
 }
 
 // What a system never had, what is only observed and what it declares as intended: counted in the summary, read on
 // demand. Colour and the tile's face are for what has stopped working.
-function drawMore(system, fleet) {
+function drawMore(system, platform) {
   const count = counts(system);
   const summary = [
     count.gap ? plural(count.gap, 'gap', 'gaps') : '',
@@ -186,11 +186,11 @@ function drawMore(system, fleet) {
   if (system.variances.length) {
     more.append(el('h4', { text: 'Intended variances' }), el('ul', {}, system.variances.map((variance) => el('li', {}, [variance.variance, el('span', { text: ` ${variance.reason}` })]))));
   }
-  more.append(...drawLinks(system, fleet));
+  more.append(...drawLinks(system, platform));
   return more;
 }
 
-function drawTile(system, facts, fleet) {
+function drawTile(system, facts, platform) {
   const state = displayState(system, facts.stale);
   const releases = drawReleases(system);
   const tile = el('article', { class: 'tile', 'data-state': state, 'data-system': system.slug });
@@ -216,7 +216,7 @@ function drawTile(system, facts, fleet) {
   if (system.asleep && state !== 'asleep') tile.append(el('p', { class: 'sub asleep-note', text: 'Asleep: switched off on purpose.' }));
   if (system.health && system.asleep) tile.append(el('p', { class: 'health', text: 'health: not asked while asleep' }));
   else if (system.health) tile.append(el('p', { class: 'health', 'data-health': system.health, text: 'health: not probed yet' }));
-  tile.append(drawMore(system, fleet));
+  tile.append(drawMore(system, platform));
   return tile;
 }
 
@@ -250,12 +250,12 @@ function drawDoors(data) {
     if (url) link.setAttribute('href', url);
     link.hidden = !url;
   };
-  const kit = data.fleet.repository ? `https://github.com/${data.fleet.repository}` : '';
-  door('open-octopus', data.fleet.octopus);
-  door('nav-octopus', data.fleet.octopus);
+  const kit = data.platform.repository ? `https://github.com/${data.platform.repository}` : '';
+  door('open-octopus', data.platform.octopus);
+  door('nav-octopus', data.platform.octopus);
   door('open-kit', kit);
   door('nav-kit', kit);
-  door('nav-data', `${config.dataUrl}fleet.json`);
+  door('nav-data', `${config.dataUrl}platform.json`);
   door('c4', `${config.dataUrl}${data.landscape || 'landscape.svg'}`);
 }
 
@@ -274,13 +274,13 @@ function find() {
 }
 
 function drawFoot(data, config) {
-  const rest = (data.shared.cost || []).find((cost) => cost.of !== 'the fleet');
+  const rest = (data.shared.cost || []).find((cost) => cost.of !== 'the platform');
   const read = (text) => (text ? text.replace('T', ' ').replace(/:\d\dZ$/, ' UTC') : 'not read');
   byId('foot').replaceChildren(
     el('p', { text: `Inputs: findings ${read(data.read?.findings)}, deployments ${read(data.read?.status)}, limits and cost ${read(data.read?.limits)}.`
       + (rest ? ` The rest of the subscription cost ${rest.monthToDate} ${rest.currency} this month.` : '')
       + ((data.missing || []).length ? ` Missing in that run: ${data.missing.join(', ')}.` : '') }),
-    el('p', {}, ['Data: ', el('a', { href: `${config.dataUrl}fleet.json`, text: 'fleet.json' }), `, written by workflow fleet of ${data.fleet.repository}. This page: `, el('a', { href: 'build.json', text: 'what it was built from' }), '.']),
+    el('p', {}, ['Data: ', el('a', { href: `${config.dataUrl}platform.json`, text: 'platform.json' }), `, written by workflow platform of ${data.platform.repository}. This page: `, el('a', { href: 'build.json', text: 'what it was built from' }), '.']),
   );
 }
 
@@ -407,10 +407,10 @@ async function loadFlights() {
 
 function draw(now) {
   if (!last) return;
-  const facts = fleetFacts(last.data, now);
+  const facts = platformFacts(last.data, now);
   drawFacts(last.data, facts);
   drawLandscape(last.data, facts, now);
-  byId('tiles').replaceChildren(...last.data.systems.map((system) => drawTile(system, facts, last.data.fleet)));
+  byId('tiles').replaceChildren(...last.data.systems.map((system) => drawTile(system, facts, last.data.platform)));
   find();
   drawShared(last.data, facts);
   drawFoot(last.data, config);
@@ -422,13 +422,13 @@ function draw(now) {
 async function load() {
   try {
     config ??= await readJson('config.json');
-    const data = await readJson(`${config.dataUrl}fleet.json`);
+    const data = await readJson(`${config.dataUrl}platform.json`);
     last = { data };
     problem('');
   } catch (error) {
     problem(last
-      ? `The fleet's data could not be read just now (${error.message}). What is shown is the last reading this page has.`
-      : `The fleet's data could not be read (${error.message}). Nothing is known until it can.`);
+      ? `The platform's data could not be read just now (${error.message}). What is shown is the last reading this page has.`
+      : `The platform's data could not be read (${error.message}). Nothing is known until it can.`);
     document.body.dataset.ready = 'true';
   }
   draw(new Date());
