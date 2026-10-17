@@ -70,10 +70,12 @@ while (-not $interruption -and (Get-Date) -lt $deadline) {
     if ((Invoke-Api -Path "/api/tasks/$($deployment.TaskId)").IsCompleted) { break }
     Start-Sleep -Seconds 10
 }
-if (-not $interruption) { throw "The deployment $($deployment.TaskId) did not stop at its sign-off." }
-Invoke-Api -Path "$s/interruptions/$($interruption.Id)/responsible" -Method Put | Out-Null
-Invoke-Api -Path "$s/interruptions/$($interruption.Id)/submit" -Method Post -Body @{ Notes = $Reason; Result = 'Proceed' } | Out-Null
-Write-Host "PASS signed off: $Reason"
+if ($interruption) {
+    # A release made before the sign-off was removed (the kit's decision 0060) still stops at it.
+    Invoke-Api -Path "$s/interruptions/$($interruption.Id)/responsible" -Method Put | Out-Null
+    Invoke-Api -Path "$s/interruptions/$($interruption.Id)/submit" -Method Post -Body @{ Notes = $Reason; Result = 'Proceed' } | Out-Null
+    Write-Host "PASS signed off: $Reason"
+}
 
 # The fleet's wall marks this deployment from deployments.json, and nothing starts workflow deployments for a
 # promotion but its schedule, which GitHub runs every twenty to thirty minutes. Started here, after the sign-off, the

@@ -16,7 +16,7 @@
     3. Azure: platform/azure.bicep (a resource group per tier with the identity Octopus deploys as).
     4. In the space: environments tdd, uat, prod; a lifecycle that deploys to tdd by itself and to the others on
        request; the feed of the steps' container image; the team that signs off; one Azure account per tier; the
-       project with its variables and its process: Sign-off (uat and prod), Update deployable, Verify deployable, and
+       project with its variables and its process (no sign-off: the kit's decision 0060): Update deployable, Verify deployable, and
        Run acceptance tests (tdd).
     5. GitHub: the variables the build's release job reads, and the ruleset of main (pull requests, with the checks
        "Build result" and "secret-scan" passed).
@@ -195,12 +195,12 @@ foreach ($name in $environments.Keys) {
 }
 $lifecycle = Set-Named -Path "$s/lifecycles" -Body @{
     Name        = 'agentpf1-lifecycle'
-    Description = "A release goes to $first by itself, and to each later environment on request, after a sign-off."
+    Description = "A release goes to $first by itself, and on to each later environment by itself once the one before succeeded (no sign-off)."
     Phases      = @($environments.Keys | ForEach-Object {
             @{
                 Name                               = $_
-                AutomaticDeploymentTargets         = @(if ($_ -eq $first) { $environmentIds[$_] })
-                OptionalDeploymentTargets          = @(if ($_ -ne $first) { $environmentIds[$_] })
+                AutomaticDeploymentTargets         = @($environmentIds[$_])
+                OptionalDeploymentTargets          = @()
                 MinimumEnvironmentsBeforePromotion = 0
                 IsOptionalPhase                    = $false
             }
@@ -299,23 +299,6 @@ function New-ScriptStep {
     return @{ Name = $Name; Condition = 'Success'; StartTrigger = 'StartAfterPrevious'; PackageRequirement = 'LetOctopusDecide'; Properties = @{}; Actions = @($action) }
 }
 $steps = @(
-    @{
-        Name = 'Sign-off'; Condition = 'Success'; StartTrigger = 'StartAfterPrevious'; PackageRequirement = 'LetOctopusDecide'; Properties = @{}
-        Actions = @(@{
-                Name                 = 'Sign-off'
-                ActionType           = 'Octopus.Manual'
-                Environments         = @()
-                ExcludedEnvironments = @($environmentIds[$first])
-                Channels             = @()
-                Packages             = @()
-                Properties           = @{
-                    'Octopus.Action.RunOnServer'                       = 'false'
-                    'Octopus.Action.Manual.Instructions'               = 'Sign off #{Octopus.Project.Name} #{Octopus.Release.Number} for #{Octopus.Environment.Name}: check the earlier environments, then Proceed with a note, or Abort.'
-                    'Octopus.Action.Manual.ResponsibleTeamIds'         = [string] $team.Id
-                    'Octopus.Action.Manual.BlockConcurrentDeployments' = 'False'
-                }
-            })
-    }
     (New-ScriptStep -Name 'Update deployable' -File 'deploy/deploy.ps1')
     (New-ScriptStep -Name 'Verify deployable' -File 'deploy/verify.ps1')
     (New-ScriptStep -Name 'Run acceptance tests' -File 'deploy/acceptance.ps1' -Environments @($environmentIds[$first]))
