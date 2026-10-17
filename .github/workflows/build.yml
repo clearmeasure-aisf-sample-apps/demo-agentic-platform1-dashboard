@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: package
-          path: out/cmfleet-dashboard.${{ steps.version.outputs.version }}.zip
+          path: out/demo-agentic-platform1-dashboard.${{ steps.version.outputs.version }}.zip
           if-no-files-found: error
 
   release:
@@ -90,13 +90,13 @@ jobs:
       - name: Push the package
         uses: OctopusDeploy/push-package-action@v4
         with:
-          packages: packages/cmfleet-dashboard.${{ env.VERSION }}.zip
+          packages: packages/demo-agentic-platform1-dashboard.${{ env.VERSION }}.zip
           overwrite_mode: IgnoreIfExists
 
       - name: Create the release
         uses: OctopusDeploy/create-release-action@v4
         with:
-          project: cmfleet-dashboard
+          project: demo-agentic-platform1-dashboard
           release_number: ${{ env.VERSION }}
           package_version: ${{ env.VERSION }}
           ignore_existing: true
