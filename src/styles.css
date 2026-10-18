@@ -211,7 +211,8 @@ a.entity:focus-visible, a.cluster-name:focus-visible { outline: 3px solid var(--
 .cluster header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
 .cluster-name { font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: var(--ink); }
 .cluster header .what { color: var(--muted); font-size: .86rem; }
-.scape-systems { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 12px; }
+/* auto-fill, not auto-fit: a card keeps its size however few systems there are, as on a wall of many. */
+.scape-systems { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 12px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .85rem; }
 .key { display: inline-flex; align-items: center; gap: 8px; }
 .swatch { width: 26px; height: 14px; background: var(--box); border: 1px solid var(--line-strong); border-radius: 2px; }
