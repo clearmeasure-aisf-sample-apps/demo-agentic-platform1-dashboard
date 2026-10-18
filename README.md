@@ -1,14 +1,14 @@
 # demo-agentic-platform1-dashboard
 
-The fleet health dashboard: every system of the fleet on one page, for operators who act on what it shows. It is the
-one application of the system `agentpf1`, the fleet's own system.
+The platform health dashboard: every system of the platform on one page, for operators who act on what it shows. It is the
+one application of the system `agentpf1`, the platform's own system.
 
-The fleet is declared and overseen in
-[demo-agentic-platform-kit](https://github.com/clearmeasure-aisf-sample-apps/demo-agentic-platform-kit) (`fleet/`). Its workflow
-`fleet` writes what it finds every six hours and publishes it:
-[fleet.json](https://clearmeasure-aisf-sample-apps.github.io/demo-agentic-platform-kit/fleet.json) and
+The platform is declared and overseen in
+[demo-agentic-platform-kit](https://github.com/clearmeasure-aisf-sample-apps/demo-agentic-platform-kit) (`platform/`). Its workflow
+`platform` writes what it finds every six hours and publishes it:
+[platform.json](https://clearmeasure-aisf-sample-apps.github.io/demo-agentic-platform-kit/platform.json) and
 [landscape.svg](https://clearmeasure-aisf-sample-apps.github.io/demo-agentic-platform-kit/landscape.svg). This page reads
-`fleet.json` in the reader's browser and draws it; the landscape too is drawn from it (below), and the fleet's own C4
+`platform.json` in the reader's browser and draws it; the landscape too is drawn from it (below), and the platform's own C4
 drawing is linked under it. Nothing is pushed into this repository, and the page has no
 server of its own.
 
@@ -24,7 +24,7 @@ branding ... mimic the styling of the octopus screen ... use Clear Measure brand
 | The green tile with a tick for a deployment that succeeded, red with a cross for one that failed, the green primary button, blue for links | Octopus | `--ok`, `--crit-fill`, `--link` |
 | The logo, in the bar where Octopus has its own, and its mark as the page's icon | Clear Measure | `src/clear-measure-logo-white.png`, `src/favicon.png` |
 | The navy of the landscape's boxes, the primary blue of what is selected, focused or filled, and the yellow of "behind the standard" | Clear Measure's palette as clearmeasure.com carries it: navy `#004B87`, primary blue `#0085CA`, deep navy `#043E6C`, accent yellow `#EECB1A`, pale blue `#CFEAFF`; and the logo's own `#24ABE1` for a deployment in flight | `--cm-blue`, `--cm-primary`, `--cm-deep`, `--cm-yellow`, `--cm-light-blue`, `--cm-sky` |
-| Headings and the fleet's name in Jost | Clear Measure's site is set in Futura and loads Jost as the face a browser can get | `--display` |
+| Headings and the platform's name in Jost | Clear Measure's site is set in Futura and loads Jost as the face a browser can get | `--display` |
 | Everything else in Roboto: tables, numbers, text | Octopus's type | `--body`, `--data` |
 
 No brand guide document was found. The source is the public site's own stylesheet (read on 2026-10-08:
@@ -47,11 +47,11 @@ There is one theme, the dark one of the screen it mimics.
 | Orange, "Needs attention" | Something that worked has stopped: a failed deployment or check, an environment left behind, a stale proof |
 | Yellow, "Behind the standard" | Nothing has stopped, and the system does not keep every standard yet: a gap it never closed, or a change of the standard it has not taken yet. Why is on the card's face |
 | Red, "Production affected" | The last deployment to production failed, or a service every system depends on is out |
-| Dashed, "Not read" | The fleet could not read the system, or its data is older than two of its six-hourly readings |
+| Dashed, "Not read" | The platform could not read the system, or its data is older than two of its six-hourly readings |
 | Dotted, "Asleep" | Switched off on purpose |
 | A blue dot | A deployment in flight, read every minute from the file each system publishes itself (`deployments.json`): pulsing while it runs, hollow while it is queued, ringed while it waits for a sign-off, small for what ended in the last ten minutes. The card says which release and environment |
-| A tile in the logo's sky blue in place of the green tick | Something is in flight there now: pulsing while it deploys, hollow while it is queued, ringed while it waits for a person. Still, with "in progress when read" where the time would be: the deployment had not ended when the fleet read it, so the release is not said to be there |
-| "Standards: 9 met · 1 gap …" | Where the system stands on every standard of the fleet. The whole list, with the fleet's words for each, opens on demand: met, behind, gap, broken, not compared (with the declared reason), intended variance, observed, nothing to judge, not checked |
+| A tile in the logo's sky blue in place of the green tick | Something is in flight there now: pulsing while it deploys, hollow while it is queued, ringed while it waits for a person. Still, with "in progress when read" where the time would be: the deployment had not ended when the platform read it, so the release is not said to be there |
+| "Standards: 9 met · 1 gap …" | Where the system stands on every standard of the platform. The whole list, with the platform's words for each, opens on demand: met, behind, gap, broken, not compared (with the declared reason), intended variance, observed, nothing to judge, not checked |
 
 The box in the bar finds systems by what is typed: a system's name, what it is, its owner or one of its projects.
 The sections beside the page scroll to their part of it; on a narrow screen they are left out.
@@ -59,12 +59,12 @@ The sections beside the page scroll to their part of it; on a narrow screen they
 ## The landscape
 
 The landscape is the first thing on the page (Jeffrey Palermo, 2026-10-09: "the landscape section should be first so
-that the first thing I see is the pictorial shape of the different systems in the fleet"): who watches, the fleet's
+that the first thing I see is the pictorial shape of the different systems in the platform"): who watches, the platform's
 oversight, the Azure subscription with every system in it, and below it what the systems share: Octopus Deploy, the
 policies it reads, and the delivery standard.
 
-The page draws it itself, from `fleet.json`, as boxes that wrap to the width of the screen. Until 1.0.33 it showed
-the fleet's C4 drawing, which is 1,665 pixels wide whatever the screen and had to be scrolled sideways on a tablet;
+The page draws it itself, from `platform.json`, as boxes that wrap to the width of the screen. Until 1.0.33 it showed
+the platform's C4 drawing, which is 1,665 pixels wide whatever the screen and had to be scrolled sideways on a tablet;
 PlantUML could not lay the same picture out narrower than about 1,270. Drawn here, it takes one row of systems on a
 wide screen and as many rows as it needs on a narrow one, in the page's own colours and type: Clear Measure's navy
 for a system, its deep navy for what the systems share, its primary blue for the operators, the frame of the
@@ -77,61 +77,61 @@ A system's box says more than its name (Jeffrey Palermo, 2026-10-09, to seven su
 
 | In the box | From |
 |---|---|
-| What it is made of ("Container Apps", "AKS + Argo CD") | `madeOf` of the fleet's data: the system's own statement in the registry, or what its registry file implies |
+| What it is made of ("Container Apps", "AKS + Argo CD") | `madeOf` of the platform's data: the system's own statement in the registry, or what its registry file implies |
 | A tile for tdd, uat and prod, in Octopus's colours | The worst of what the system's projects last did there: red where one failed, orange where one is behind the first environment, green otherwise, dashed where nothing is deployed |
-| A tile in sky blue | Something is deploying, queued or waiting for a person in that environment now (the sources are below); or, still and without a mark of its own, its deployment had not ended when the fleet read it |
-| "prod 2.4.73 · 3 h" | The newest deployment to production, or the one that failed. "prod 2.4.76 · in progress when read" where that deployment had not ended when the fleet read it (`inProgress` of the fleet's data), in place of a release with no time |
-| "prod waits for a sign-off, 12 min" | A deployment that waits for a person, and for how long. The whole of it is the line's title: project, release, who is responsible and who started it, where the fleet's data says so |
+| A tile in sky blue | Something is deploying, queued or waiting for a person in that environment now (the sources are below); or, still and without a mark of its own, its deployment had not ended when the platform read it |
+| "prod 2.4.73 · 3 h" | The newest deployment to production, or the one that failed. "prod 2.4.76 · in progress when read" where that deployment had not ended when the platform read it (`inProgress` of the platform's data), in place of a release with no time |
+| "prod waits for a sign-off, 12 min" | A deployment that waits for a person, and for how long. The whole of it is the line's title: project, release, who is responsible and who started it, where the platform's data says so |
 | "deploying ui 2.4.76 to uat", "ui 2.4.76 queued for uat" | What is deploying or queued, the project named without the system's own name |
-| "prod frozen until Mon 00:00 UTC", "prod freezes Sat 00:00 UTC" | A deployment freeze in force, or one that begins within 72 hours of the fleet's reading; the page's own clock decides which. Always from the fleet's data (`activity.freezes`): no system publishes its freezes |
+| "prod frozen until Mon 00:00 UTC", "prod freezes Sat 00:00 UTC" | A deployment freeze in force, or one that begins within 72 hours of the platform's reading; the page's own clock decides which. Always from the platform's data (`activity.freezes`): no system publishes its freezes |
 | "last: ui 2.4.75 to prod, 20 min ago" | Only where nothing is in flight: the last deployment that ended, and how ("failed in", "canceled in") |
-| "was deploying ui 2.4.76 to uat when read 3 h ago" | What the fleet read as in flight more than half an hour ago, for a system that publishes no file of its own: said in the past tense, and it marks no tile |
+| "was deploying ui 2.4.76 to uat when read 3 h ago" | What the platform read as in flight more than half an hour ago, for a system that publishes no file of its own: said in the past tense, and it marks no tile |
 | "Behind the standard: 2 standards", "Needs attention: 1 broken" | The state in words with a count, only where the system is not as declared, so colour is not the one thing that says it |
-| "13 of 16 standards · 4.18 USD" | How many of the fleet's standards it meets, and the month's cost |
+| "13 of 16 standards · 4.18 USD" | How many of the platform's standards it meets, and the month's cost |
 | A dot at the top left | The answer of the system's health address, asked from the reader's browser just now: green for healthy, red for not; no dot where the system names no address or is asleep |
 | "pulls the standard" | It follows the kit's templates |
 
-A line the fleet read nothing for is left out.
+A line the platform read nothing for is left out.
 
 The activity is at most two lines, the most urgent first: what waits for a person, what is deploying, what is
-queued, a freeze, what the fleet read too long ago to claim of now, and last the last thing that happened (Jeffrey
+queued, a freeze, what the platform read too long ago to claim of now, and last the last thing that happened (Jeffrey
 Palermo, 2026-10-09: "annotate the diagram nodes with the statuses and activities"). Two sources say it, and a line's
 title names its own:
 
 | Source | How fresh | Says |
 |---|---|---|
 | The system's own `deployments.json` (the kit's decisions 0016 and 0020), read from the browser every minute | Minutes | What is queued, executing or waiting, and what ended in the last ten minutes |
-| `activity` of `fleet.json`: the fleet's own reading of Octopus (`get-fleet-status.ps1` of the kit) | Up to six hours | The same for every system, also one that publishes no file; the last five deployments that ended; who started a deployment and who is responsible for a sign-off; deployment freezes |
+| `activity` of `platform.json`: the platform's own reading of Octopus (`get-platform-status.ps1` of the kit) | Up to six hours | The same for every system, also one that publishes no file; the last five deployments that ended; who started a deployment and who is responsible for a sign-off; deployment freezes |
 
 They are never both shown about the same thing. Where a system's file was read, what is in flight comes from it
-alone: a file that names nothing says nothing is in flight, and what the fleet read earlier is not set against it.
-Where a system publishes no file (or it cannot be read), the fleet's reading is used: in the present tense and with
+alone: a file that names nothing says nothing is in flight, and what the platform read earlier is not set against it.
+Where a system publishes no file (or it cannot be read), the platform's reading is used: in the present tense and with
 the marks of flight for half an hour after it was read, in the past tense with its age after that, and not at all
-once the fleet's data is older than two readings. "last:" is the newest of what either source says ended. A freeze
-is always the fleet's. The card under the landscape lists the same deployments in full, and its grid carries the
+once the platform's data is older than two readings. "last:" is the newest of what either source says ended. A freeze
+is always the platform's. The card under the landscape lists the same deployments in full, and its grid carries the
 same blue tiles.
 
-The Octopus Deploy box says what the instance was doing when the fleet read it, beside its count against the task
+The Octopus Deploy box says what the instance was doing when the platform read it, beside its count against the task
 cap: "4 of 20 tasks", then "2 running · 1 waits for a person" (`activity` of the shared service `octopus`: tasks
-executing and queued that the fleet's read-only account sees, and the deployments of the fleet's systems that wait
+executing and queued that the platform's read-only account sees, and the deployments of the platform's systems that wait
 for a person). Data without these fields draws as it did before: no line, no blue tile.
 
 No box of the landscape does nothing (Jeffrey Palermo, 2026-10-08: "whatever the box represents I want to be able to
 click and zoom into the view of that resource"). Octopus Deploy opens the instance, the delivery standard and the
-policies open their repositories on GitHub, the fleet's box opens the registry, the operators' box the open findings,
+policies open their repositories on GitHub, the platform's box opens the registry, the operators' box the open findings,
 and the frame of the subscription the Azure portal. These open in a new tab: Octopus, GitHub and Azure do not let
 themselves be shown inside another page. The portal opens at the subscription the systems run in, which the
-fleet's public data names since 2026-10-08 (`fleet.azurePortal`; the kit's decision 0027), and a system's card leads
+platform's public data names since 2026-10-08 (`platform.azurePortal`; the kit's decision 0027), and a system's card leads
 to each of its resource groups there ("Azure: rg-...", under "cost, links"); a system the data names no group for
 leads to the subscription. Data without that address opens the portal at the reader's resource groups. A
 system that names neither a runtime view nor a dashboard opens its space in Octopus.
 
 A click on a system's box in the landscape, or on its name on its tile, zooms into that system's runtime view (its own
 dashboard where it names none): the dashboard loads in a frame over the box and grows to the whole screen, inside this
-page. "Fleet", Escape and the browser's Back zoom out; the address carries the system's name after `#`. Each card
+page. "Platform", Escape and the browser's Back zoom out; the address carries the system's name after `#`. Each card
 shows what every project runs in every environment, and what is broken. The rest (every standard, gaps, what is only
 observed, intended variances, cost, links) opens on demand. A system that names a
-public health address in the fleet's registry is asked from the reader's browser, so that line is true now and not
+public health address in the platform's registry is asked from the reader's browser, so that line is true now and not
 as of the last reading.
 
 ## The delivery structure
@@ -155,11 +155,11 @@ as of the last reading.
 One storage account per environment that serves the site's files as a static website (`deploy/site.json`), created
 by the release that first needs it. That is this system's own choice; the kit specifies how a system is delivered,
 not what it is made of. Why this and not Static Web Apps on the Free plan, where it began: a subscription may have
-ten of those, and the fleet's systems had used them up. A storage website has no such limit, costs cents a month,
+ten of those, and the platform's systems had used them up. A storage website has no such limit, costs cents a month,
 keeps three separate environments, and is deployed by Octopus with no key.
 
 What it cannot do: send headers of its own. Azure Storage does not support CORS on a static website, so a page of
-another origin cannot read `/build.json` or `/health.json` here. The fleet health dashboard reads its own, which is
+another origin cannot read `/build.json` or `/health.json` here. The platform health dashboard reads its own, which is
 the same origin. A site whose files other pages must read needs another hosting.
 
 A release is one package, `demo-agentic-platform1-dashboard.<version>.zip`:

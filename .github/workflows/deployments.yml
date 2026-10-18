@@ -1,6 +1,6 @@
 # Deployments in flight, for every dashboard: platform/write-deployments.ps1 reads the system's Octopus space once and
 # writes deployments.json: what is queued, running, stopped for a sign-off, and what ended in the last half hour. The
-# file is on branch "deployments": one commit, replaced (force-pushed) by a run that finds a change. The fleet health
+# file is on branch "deployments": one commit, replaced (force-pushed) by a run that finds a change. The platform health
 # dashboard reads it from the reader's browser, like every system's, at
 # https://raw.githubusercontent.com/clearmeasure-aisf-sample-apps/demo-agentic-platform1-dashboard/deployments/deployments.json.
 # The script is the kit's (templates/system/scripts/write-deployments.ps1), copied here: this system has no

@@ -1,6 +1,6 @@
-// Zooming from the fleet into one system and back out. A click on a system loads its dashboard in a frame that starts
-// exactly over what was clicked and grows to the whole screen while the fleet scales up around that spot and fades:
-// from high above, into the box. The reader stays in the fleet's page: "Fleet", Escape and the browser's Back zoom out.
+// Zooming from the platform into one system and back out. A click on a system loads its dashboard in a frame that starts
+// exactly over what was clicked and grows to the whole screen while the platform scales up around that spot and fades:
+// from high above, into the box. The reader stays in the platform's page: "Platform", Escape and the browser's Back zoom out.
 const byId = (id) => document.getElementById(id);
 const still = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const DURATION = 800;
@@ -32,7 +32,7 @@ function play(element, frames, backwards) {
   return animation.finished.then(() => animation.cancel(), () => {});
 }
 
-// The fleet scales up around the spot that was clicked, and fades.
+// The platform scales up around the spot that was clicked, and fades.
 function wallFrames(rect) {
   const wall = document.querySelector('.wall').getBoundingClientRect();
   const scale = Math.min(12, Math.max(window.innerWidth / Math.max(rect.width, 1), window.innerHeight / Math.max(rect.height, 1)));
@@ -118,7 +118,7 @@ export function initZoom(lookup) {
   window.addEventListener('popstate', () => follow(true));
 }
 
-// After the fleet's data is drawn for the first time: an address that names a system opens it, without the animation.
+// After the platform's data is drawn for the first time: an address that names a system opens it, without the animation.
 export function openFromAddress() {
   return follow(false);
 }

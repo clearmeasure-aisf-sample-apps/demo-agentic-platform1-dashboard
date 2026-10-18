@@ -21,7 +21,7 @@ test('the page is served and loads its script and its styles', async () => {
   const { response, text } = await get('/');
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type'), /text\/html/);
-  assert.match(text, /<title>Fleet Health Dashboard<\/title>/);
+  assert.match(text, /<title>Platform Health Dashboard<\/title>/);
   assert.match(text, /<script type="module" src="app\.js">/);
   assert.match(text, /href="styles\.css"/);
 });
@@ -62,15 +62,15 @@ test('the health address answers ok', async () => {
   assert.equal(JSON.parse(text).status, 'ok');
 });
 
-test('the fleet data the page is configured to read is there, readable from another origin', async () => {
+test('the platform data the page is configured to read is there, readable from another origin', async () => {
   const { text } = await get('/config.json');
   const { dataUrl } = JSON.parse(text);
   assert.match(dataUrl, /^https:\/\/.+\/$/);
-  const data = await fetch(`${dataUrl}fleet.json`);
+  const data = await fetch(`${dataUrl}platform.json`);
   assert.equal(data.status, 200);
   assert.equal(data.headers.get('access-control-allow-origin'), '*');
-  const fleet = await data.json();
-  assert.ok(fleet.systems.length > 0);
-  const landscape = await fetch(`${dataUrl}${fleet.landscape}`);
+  const platform = await data.json();
+  assert.ok(platform.systems.length > 0);
+  const landscape = await fetch(`${dataUrl}${platform.landscape}`);
   assert.equal(landscape.status, 200);
 });

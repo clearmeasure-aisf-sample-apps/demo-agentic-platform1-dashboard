@@ -163,7 +163,7 @@ $space = Get-Named -Path '/api/spaces' -Name $spaceName
 if (-not $space) {
     $space = Invoke-Api -Path '/api/spaces' -Method Post -Body @{
         Name                     = $spaceName
-        Description              = "The fleet's own system: the fleet health dashboard, managed from $Repository (platform/)."
+        Description              = "The platform's own system: the platform health dashboard, managed from $Repository (platform/)."
         SpaceManagersTeams       = @($instanceManagers)
         SpaceManagersTeamMembers = @($managers)
         IsDefault                = $false
@@ -191,7 +191,7 @@ foreach ($tier in $outputs) { Write-Host "PASS $($tier.resourceGroup): id-agentp
 Write-Host '==> In the space: environments, lifecycle, feed, team, accounts'
 $environmentIds = [ordered] @{}
 foreach ($name in $environments.Keys) {
-    $environmentIds[$name] = [string] (Set-Named -Path "$s/environments" -Body @{ Name = $name; Description = "$name of the fleet health dashboard ($($environments[$name]))" }).Id
+    $environmentIds[$name] = [string] (Set-Named -Path "$s/environments" -Body @{ Name = $name; Description = "$name of the platform health dashboard ($($environments[$name]))" }).Id
 }
 $lifecycle = Set-Named -Path "$s/lifecycles" -Body @{
     Name        = 'agentpf1-lifecycle'
@@ -213,7 +213,7 @@ if (-not $builtIn -or -not $pool) { throw "The space has no built-in feed or no 
 
 $team = Set-Named -Path '/api/teams' -FindPath "/api/teams?spaces=$($space.Id)&includeSystem=false" -Body @{
     Name          = 'agentpf1 approvers'
-    Description   = 'Who signs off a promotion of the fleet health dashboard. The operator signs off scripted promotions, with a reason.'
+    Description   = 'Who signs off a promotion of the platform health dashboard. The operator signs off scripted promotions, with a reason.'
     SpaceId       = [string] $space.Id
     MemberUserIds = @([string] $operator.Id)
     ExternalSecurityGroups = @()
@@ -242,10 +242,10 @@ foreach ($tier in $outputs) {
 }
 
 Write-Host "==> Project $projectName"
-$group = Set-Named -Path "$s/projectgroups" -Body @{ Name = 'agentpf1'; Description = "The fleet's own system." }
+$group = Set-Named -Path "$s/projectgroups" -Body @{ Name = 'agentpf1'; Description = "The platform's own system." }
 $project = Set-Named -Path "$s/projects" -Body @{
     Name           = $projectName
-    Description    = "The fleet health dashboard, released from $Repository. Its steps run the scripts of the release's own package (deploy/)."
+    Description    = "The platform health dashboard, released from $Repository. Its steps run the scripts of the release's own package (deploy/)."
     ProjectGroupId = [string] $group.Id
     LifecycleId    = [string] $lifecycle.Id
 }
@@ -271,7 +271,7 @@ else {
 }
 
 # The process. Every script step runs a file of the release's package as the tier's deploy identity, in the same
-# container on the hosted Ubuntu workers. The names are the fleet's: "Update deployable" followed by "Verify
+# container on the hosted Ubuntu workers. The names are the platform's: "Update deployable" followed by "Verify
 # deployable" is the health check after a deployment that its policy looks for, and "Sign-off" the manual step.
 function New-ScriptStep {
     param([Parameter(Mandatory)] [string] $Name, [Parameter(Mandatory)] [string] $File, [string[]] $Environments = @())

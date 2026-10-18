@@ -1,4 +1,4 @@
-/* The fleet health dashboard: a wall for operators who act on it.
+/* The platform health dashboard: a wall for operators who act on it.
    It wears two brands. The surfaces, the cards, the status tiles and the type are those of Octopus Deploy's dark
    screens, because every system on this page is released there and a reader comes from there. The logo, the blue of
    the boxes and of what is selected, the yellow and the face of the headings are Clear Measure's. */
@@ -7,7 +7,7 @@ html { color-scheme: dark; }
 body { margin: 0; }
 [hidden] { display: none !important; }
 img, svg { max-width: 100%; }
-/* Layout: a bar with the logo and the fleet's name, the sections of the page beside it, then the fleet's counts, the
+/* Layout: a bar with the logo and the platform's name, the sections of the page beside it, then the platform's counts, the
    landscape, one card per system with what each of its projects runs in each environment, and what every system
    shares. A deployment that succeeded wears Octopus's green tile. A system's state keeps its own colours: none for
    as declared, orange for what stopped working, yellow for behind the standard, red where production is affected.
@@ -42,7 +42,7 @@ h2 { font-size: 1.15rem; font-weight: 700; }
 .num { font-family: var(--data); font-variant-numeric: tabular-nums; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-/* The bar: Clear Measure's logo where Octopus has its own, the fleet's name where Octopus names the space. */
+/* The bar: Clear Measure's logo where Octopus has its own, the platform's name where Octopus names the space. */
 .topbar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; min-height: 56px; padding: 8px clamp(12px, 1.6vw, 24px); background: var(--bar); }
 .brand { display: inline-flex; align-items: center; }
 .brand img { display: block; height: 40px; width: auto; }
@@ -161,8 +161,8 @@ table.standards tr[data-status="broken"] td.stands { color: var(--attn); }
 table.standards tr[data-status="critical"] td.stands { color: var(--crit); }
 table.standards tr[data-status="met"] td.stands { color: var(--ok); font-weight: 400; }
 
-/* The landscape: who watches, the fleet's oversight, the subscription with every system in it, and what the systems
-   share. It is drawn by the page from the fleet's data, as boxes that wrap to the width they have, so it is never
+/* The landscape: who watches, the platform's oversight, the subscription with every system in it, and what the systems
+   share. It is drawn by the page from the platform's data, as boxes that wrap to the width they have, so it is never
    wider than the screen. Boxes are Clear Measure's navy; what the systems share is its deep navy; the frame of the
    subscription and the arrows are its primary blue. A box's edge takes the state of what it stands for. */
 .scape { display: grid; gap: 10px; }
@@ -264,7 +264,7 @@ footer p { margin: 0 0 6px; }
 .flights li.earlier::before { width: 6px; height: 6px; margin: 2px; background: var(--line-strong); }
 /* What happens in a system, on its box: at most two lines, each with a mark in the colour of flight. Ringed for what
    waits for a person, pulsing for what is deploying, hollow for what is queued, a square for a freeze; the last
-   thing that happened and what the fleet read earlier are plain. */
+   thing that happened and what the platform read earlier are plain. */
 .entity .acts { display: grid; gap: 2px; justify-items: center; margin-top: 2px; }
 .entity .act { font-size: .8rem; font-weight: 500; overflow-wrap: anywhere; }
 .entity .act::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--flight); }
@@ -277,7 +277,7 @@ footer p { margin: 0 0 6px; }
 .entity .act-last::before, .entity .act-earlier::before, .entity .act-instance::before { content: none; }
 .entity .act-failed { color: var(--crit); }
 /* An environment's tile while something is in flight there, on a box and in a card's grid: the colour of flight in
-   place of the tick. A release that was being deployed when the fleet read it is that colour and still. */
+   place of the tick. A release that was being deployed when the platform read it is that colour and still. */
 .entity .env.progress i, .entity .env[data-flight] i, td.rel.progress .status, td.rel[data-flight] .status { background: var(--flight); }
 .entity .env[data-flight="executing"] i, td.rel[data-flight="executing"] .status { animation: pulse 1.2s ease-in-out infinite; }
 .entity .env[data-flight="queued"] i, td.rel[data-flight="queued"] .status { background: transparent; border: 3px solid var(--flight); }
@@ -287,7 +287,7 @@ td.rel.progress .release .when { color: var(--flight); }
   .entity .flight.executing, .flights li.executing::before, .entity .act-deploying::before, .entity .env[data-flight="executing"] i, td.rel[data-flight="executing"] .status { animation: none; }
 }
 
-/* Zoomed into one system: its dashboard over the whole screen, inside the fleet's page. */
+/* Zoomed into one system: its dashboard over the whole screen, inside the platform's page. */
 .zoom { position: fixed; inset: 0; z-index: 10; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); transform-origin: 0 0; will-change: transform, opacity; }
 .zoom-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; padding: 8px clamp(12px, 2vw, 28px); padding-top: calc(8px + env(safe-area-inset-top, 0px)); background: var(--bar); font-size: .9rem; }
 .zoom-bar button { font: inherit; font-weight: 500; padding: 6px 14px; color: var(--link); background: transparent; border: 1px solid var(--link); border-radius: var(--radius); cursor: pointer; }

@@ -1,5 +1,5 @@
 // Writes the build's facts, the file the deployed site serves at /build.json: what it was built from and how good
-// that build is. Read by the fleet (code metrics, a rule no system is exempt from) and by anyone who asks the site.
+// that build is. Read by the platform (code metrics, a rule no system is exempt from) and by anyone who asks the site.
 //   node tools/metrics.js <out file>   with VERSION, COMMIT, REPOSITORY_URL and BUILD_URL in the environment
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';

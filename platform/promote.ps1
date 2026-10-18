@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    Promotes a release of the fleet health dashboard to an environment, signs it off with a reason, and waits for it.
+    Promotes a release of the platform health dashboard to an environment, signs it off with a reason, and waits for it.
 
 .DESCRIPTION
     A release reaches tdd by itself. uat and prod are promotions, and each stops at the step Sign-off until a member
@@ -77,7 +77,7 @@ if ($interruption) {
     Write-Host "PASS signed off: $Reason"
 }
 
-# The fleet's wall marks this deployment from deployments.json, and nothing starts workflow deployments for a
+# The platform's wall marks this deployment from deployments.json, and nothing starts workflow deployments for a
 # promotion but its schedule, which GitHub runs every twenty to thirty minutes. Started here, after the sign-off, the
 # run finds the deployment executing and follows it to its end (the kit's decision 0023). Best effort: a GitHub that
 # refuses does not stop the promotion.

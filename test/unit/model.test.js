@@ -2,10 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   AZURE_PORTAL, azureLinks, boxLinks, boxTitle, costLine, environmentTiles, hostOf, landscape, prodLine, standardsLine, stateLine,
-  FINISHED_MINUTES, STALE_AFTER_HOURS, ageHours, asked, behindReasons, counts, deploymentMarks, deploymentText, flightState, deploymentWord, displayState, findText, fleetFacts, formatAge, formatWhen,
+  FINISHED_MINUTES, STALE_AFTER_HOURS, ageHours, asked, behindReasons, counts, deploymentMarks, deploymentText, flightState, deploymentWord, displayState, findText, platformFacts, formatAge, formatWhen,
   healthWord, isStale, limitShare, limitsInUse, matches, observed, parseUtc, prodEnvironments, prodRows, releaseGrid, releaseWord, serviceState, standing,
   standingSummary, systemDoor, systemLink, withoutSlug,
-  ACTIVITY_LINES, FLEET_FRESH_MINUTES, IN_PROGRESS, activityLines, cellFlights, cellKey, cellTitle, cellWhen, fleetMarks, fleetText, flightLine, flightMarks, flightWord, formatUntil, freezeLines, instanceLine,
+  ACTIVITY_LINES, PLATFORM_FRESH_MINUTES, IN_PROGRESS, activityLines, cellFlights, cellKey, cellTitle, cellWhen, platformMarks, platformText, flightLine, flightMarks, flightWord, formatUntil, freezeLines, instanceLine,
   isNewer, lastLine, liveMarks, shortProject, tileFlights,
 } from '../../src/model.js';
 
@@ -127,7 +127,7 @@ test('the release grid says where a release waits to be promoted, and where an e
   assert.deepEqual(grid.rows[1].cells.map((cell) => cell.kind), ['same', 'same', 'none']);
 });
 
-test('the fleet in numbers', () => {
+test('the platform in numbers', () => {
   const data = {
     generated: '2026-10-07T10:00:00Z',
     systems: [
@@ -136,13 +136,13 @@ test('the fleet in numbers', () => {
       system({ state: 'unknown' }),
       system({ state: 'behind', findings: [{ key: 'policy/d/code-metrics', class: 'gap', observed: false }] }),
     ],
-    shared: { cost: [{ of: 'the fleet', monthToDate: '91.07', currency: 'USD' }, { of: 'the rest of the subscription', monthToDate: '1.00', currency: 'USD' }] },
+    shared: { cost: [{ of: 'the platform', monthToDate: '91.07', currency: 'USD' }, { of: 'the rest of the subscription', monthToDate: '1.00', currency: 'USD' }] },
   };
-  assert.deepEqual(fleetFacts(data, now), { stale: false, age: 2, systems: 4, critical: 1, attention: 1, behind: 1, notRead: 1, broken: 2, gaps: 2, cost: '91.07 USD' });
+  assert.deepEqual(platformFacts(data, now), { stale: false, age: 2, systems: 4, critical: 1, attention: 1, behind: 1, notRead: 1, broken: 2, gaps: 2, cost: '91.07 USD' });
 });
 
 test('old data makes every system not read, and no cost reads as n/a', () => {
-  const facts = fleetFacts({ generated: '2026-10-05T10:00:00Z', systems: [system({ state: 'critical' }), system()], shared: {} }, now);
+  const facts = platformFacts({ generated: '2026-10-05T10:00:00Z', systems: [system({ state: 'critical' }), system()], shared: {} }, now);
   assert.equal(facts.stale, true);
   assert.equal(facts.notRead, 2);
   assert.equal(facts.critical, 0);
@@ -213,7 +213,7 @@ test('where a system stands on each standard, in the words of the wall, and in o
   assert.equal(standingSummary(one), '1 gap · 1 behind · 1 nothing to judge · 1 not checked · 2 met · 1 something-new');
 });
 
-test('a system the fleet wrote before it recorded standings has none, and no reasons', () => {
+test('a system the platform wrote before it recorded standings has none, and no reasons', () => {
   assert.deepEqual(standing(system()), []);
   assert.equal(standingSummary(system()), '');
   assert.deepEqual(behindReasons(system()), []);
@@ -285,17 +285,17 @@ test('a system is found by its name, what it is, its owner or a project, whateve
 });
 
 test('every box of the landscape that is not a system leads to what it stands for', () => {
-  const fleet = { repository: 'acme/kit', octopus: 'https://acme.octopus.app', policies: 'acme/policies' };
-  assert.deepEqual(boxLinks({ fleet }), {
-    operators: 'https://github.com/acme/kit/issues?q=is%3Aissue+state%3Aopen+label%3Afleet-finding',
-    fleet: 'https://github.com/acme/kit/tree/main/fleet',
+  const platform = { repository: 'acme/kit', octopus: 'https://acme.octopus.app', policies: 'acme/policies' };
+  assert.deepEqual(boxLinks({ platform }), {
+    operators: 'https://github.com/acme/kit/issues?q=is%3Aissue+state%3Aopen+label%3Aplatform-finding',
+    platform: 'https://github.com/acme/kit/tree/main/platform',
     octopus: 'https://acme.octopus.app',
     kit: 'https://github.com/acme/kit/tree/green',
     policies: 'https://github.com/acme/policies',
     subscription: AZURE_PORTAL,
   });
-  assert.equal(boxLinks({ fleet: { ...fleet, azurePortal: 'https://portal.azure.com/#@acme/resource/subscriptions/1' } }).subscription, 'https://portal.azure.com/#@acme/resource/subscriptions/1');
-  assert.deepEqual(boxLinks({ fleet: {} }), { subscription: AZURE_PORTAL });
+  assert.equal(boxLinks({ platform: { ...platform, azurePortal: 'https://portal.azure.com/#@acme/resource/subscriptions/1' } }).subscription, 'https://portal.azure.com/#@acme/resource/subscriptions/1');
+  assert.deepEqual(boxLinks({ platform: {} }), { subscription: AZURE_PORTAL });
   assert.deepEqual(boxLinks({}), { subscription: AZURE_PORTAL });
   assert.equal(hostOf('https://github.com/acme/kit/tree/green'), 'github.com');
   assert.equal(hostOf(AZURE_PORTAL), 'portal.azure.com');
@@ -309,24 +309,24 @@ test('a system with nothing to zoom into leads to its space in Octopus, then to 
 });
 
 test('a system leads to each of its resource groups in the portal, or to the subscription when none is named', () => {
-  const fleet = { azurePortal: 'https://portal.azure.com/#resource/subscriptions/1/resourceGroups' };
+  const platform = { azurePortal: 'https://portal.azure.com/#resource/subscriptions/1/resourceGroups' };
   const groups = [
     { group: 'rg-demo-nonprod', url: 'https://portal.azure.com/#resource/subscriptions/1/resourceGroups/rg-demo-nonprod/overview' },
     { group: 'rg-demo-prod', url: 'https://portal.azure.com/#resource/subscriptions/1/resourceGroups/rg-demo-prod/overview' },
   ];
-  assert.deepEqual(azureLinks(system({ azure: groups }), fleet), [
+  assert.deepEqual(azureLinks(system({ azure: groups }), platform), [
     { text: 'Azure: rg-demo-nonprod', url: groups[0].url }, { text: 'Azure: rg-demo-prod', url: groups[1].url },
   ]);
-  assert.deepEqual(azureLinks(system({ azure: [] }), fleet), [{ text: 'Azure subscription', url: fleet.azurePortal }]);
-  assert.deepEqual(azureLinks(system(), fleet), [{ text: 'Azure subscription', url: fleet.azurePortal }]);
-  assert.deepEqual(azureLinks(system({ azure: [{ group: 'rg-demo-prod', url: '' }] }), fleet), [{ text: 'Azure subscription', url: fleet.azurePortal }]);
+  assert.deepEqual(azureLinks(system({ azure: [] }), platform), [{ text: 'Azure subscription', url: platform.azurePortal }]);
+  assert.deepEqual(azureLinks(system(), platform), [{ text: 'Azure subscription', url: platform.azurePortal }]);
+  assert.deepEqual(azureLinks(system({ azure: [{ group: 'rg-demo-prod', url: '' }] }), platform), [{ text: 'Azure subscription', url: platform.azurePortal }]);
   assert.deepEqual(azureLinks(system(), {}), []);
   assert.deepEqual(azureLinks(system(), undefined), []);
 });
 
 test('the landscape is who watches, the oversight, every system in the subscription and what they share', () => {
   const data = {
-    fleet: { name: 'Acme systems', repository: 'acme/kit', octopus: 'https://acme.octopus.app', policies: 'acme/policies' },
+    platform: { name: 'Acme systems', repository: 'acme/kit', octopus: 'https://acme.octopus.app', policies: 'acme/policies' },
     systems: [
       system({ slug: 'one', name: 'System one', state: 'attention', kitBuilt: true, runtimeView: 'https://one.example/#runtime/prod', dashboard: 'https://one.example/' }),
       system({ slug: 'two', name: 'System two', state: 'ok', kitBuilt: false, space: { url: 'https://acme.octopus.app/app#/Spaces-2' } }),
@@ -346,16 +346,16 @@ test('the landscape is who watches, the oversight, every system in the subscript
     { name: 'octopus', title: 'Octopus Deploy', text: '4 of 20 tasks', state: 'ok', zoom: '', open: 'https://acme.octopus.app' },
     { name: 'kit', title: 'Delivery standard', text: '', state: 'attention', zoom: '', open: 'https://github.com/acme/kit/tree/green' },
   ]);
-  assert.equal(scape.fleet.title, 'Acme systems');
-  assert.equal(scape.fleet.open, 'https://github.com/acme/kit/tree/main/fleet');
-  assert.match(scape.operators.open, /label%3Afleet-finding$/);
+  assert.equal(scape.platform.title, 'Acme systems');
+  assert.equal(scape.platform.open, 'https://github.com/acme/kit/tree/main/platform');
+  assert.match(scape.operators.open, /label%3Aplatform-finding$/);
   assert.equal(scape.subscription.open, AZURE_PORTAL);
   // Old data is not read, whatever it said.
   assert.deepEqual(landscape(data, true, now).systems.map((one) => one.state), ['not-read', 'not-read', 'not-read']);
   assert.deepEqual(landscape(data, true, now).services.map((one) => one.state), ['not-read', 'not-read']);
   // Data with nothing in it still draws the frame.
   const bare = landscape({ systems: [] }, false, now);
-  assert.deepEqual([bare.systems.length, bare.services.length, bare.pulling, bare.fleet.title, bare.fleet.open], [0, 0, 0, 'The fleet', '']);
+  assert.deepEqual([bare.systems.length, bare.services.length, bare.pulling, bare.platform.title, bare.platform.open], [0, 0, 0, 'The platform', '']);
 
   assert.equal(boxTitle(scape.systems[0]), 'one: Needs attention. Zooms into its dashboard');
   assert.equal(boxTitle(scape.systems[1]), 'two: As declared. Opens acme.octopus.app in a new tab');
@@ -395,7 +395,7 @@ test('and what production runs: its newest deployment, or the one that failed', 
   assert.equal(prodLine(system(), now), '');
 });
 
-test('and its state in words with a count, its standards and its cost; nothing where the fleet read nothing', () => {
+test('and its state in words with a count, its standards and its cost; nothing where the platform read nothing', () => {
   assert.equal(stateLine(system(), false), '');
   assert.equal(stateLine(system({ state: 'behind', behind: ['GitHub identity: a user\'s token', 'Private build: not yet'] }), false), 'Behind the standard: 2 standards');
   assert.equal(stateLine(system({ state: 'behind', behind: ['one'] }), false), 'Behind the standard: 1 standard');
@@ -423,7 +423,7 @@ test('and its state in words with a count, its standards and its cost; nothing w
   ]);
 });
 
-// Activity. The fleet read at 11:50, ten minutes before "now"; a later reading is made by moving "now".
+// Activity. The platform read at 11:50, ten minutes before "now"; a later reading is made by moving "now".
 const READ = '2026-10-07T11:50:00Z';
 const flying = (state, environment, extra = {}) => ({
   project: 'demo-ui', release: '2.4.76', environment, state, since: '2026-10-07T11:40:00Z', startedBy: 'demo-github', url: `https://octopus.example/tasks/${state}`, ...extra,
@@ -432,7 +432,7 @@ const signOff = { kind: 'sign-off', title: 'Sign-off', since: '2026-10-07T11:48:
 const ended = (result, environment, finished, extra = {}) => ({ project: 'demo-ui', release: '2.4.75', environment, result, finished, startedBy: 'pat', url: '', ...extra });
 const acting = (activity) => system({ activity: { read: READ, inFlight: [], recent: [], freezes: [], missing: [], ...activity } });
 
-test('a release whose deployment had not ended when the fleet read it says so, in the grid, on its tile and for production', () => {
+test('a release whose deployment had not ended when the platform read it says so, in the grid, on its tile and for production', () => {
   const one = system({ projects: [{ name: 'web', environments: [
     { name: 'tdd', release: '2.1', state: 'Executing', finished: '', inProgress: true, started: '2026-10-07 11:40', url: 'https://octopus.example/t' },
     { name: 'uat', release: '2.0', state: 'Success', finished: '2026-10-07 09:00', url: '' },
@@ -445,8 +445,8 @@ test('a release whose deployment had not ended when the fleet read it says so, i
   assert.equal(cellWhen(cells[0], 'UTC'), 'in progress when read');
   assert.equal(cellWhen(cells[1], 'UTC'), 'Oct 7, 2026 9:00 AM');
   assert.equal(cellWhen({ kind: 'same', finished: '' }, 'UTC'), '');
-  assert.equal(cellTitle(cells[0]), 'started 2026-10-07 11:40 UTC, not finished when the fleet read it');
-  assert.equal(cellTitle(cells[2]), 'not finished when the fleet read it');
+  assert.equal(cellTitle(cells[0]), 'started 2026-10-07 11:40 UTC, not finished when the platform read it');
+  assert.equal(cellTitle(cells[2]), 'not finished when the platform read it');
   assert.equal(cellTitle(cells[1]), 'finished 2026-10-07 09:00 UTC');
   assert.equal(cellTitle({ kind: 'none', finished: '' }), '');
   assert.deepEqual(environmentTiles(one), [
@@ -469,48 +469,48 @@ test('a project is named without its system on the system\'s own box', () => {
   assert.equal(shortProject('ui', ''), 'ui');
 });
 
-test('what the fleet read as in flight is marked like a system\'s own file: the one a person holds first', () => {
-  const marks = fleetMarks(acting({ inFlight: [flying('queued', 'tdd'), flying('executing', 'uat'), flying('waiting', 'prod', { waitsFor: signOff })] }), now);
+test('what the platform read as in flight is marked like a system\'s own file: the one a person holds first', () => {
+  const marks = platformMarks(acting({ inFlight: [flying('queued', 'tdd'), flying('executing', 'uat'), flying('waiting', 'prod', { waitsFor: signOff })] }), now);
   assert.deepEqual(marks.map((mark) => [mark.state, mark.environment, mark.minutes, mark.past, mark.read, mark.source]), [
-    ['waiting', 'prod', 12, false, 10, 'fleet'], ['executing', 'uat', 20, false, 10, 'fleet'], ['queued', 'tdd', 20, false, 10, 'fleet'],
+    ['waiting', 'prod', 12, false, 10, 'platform'], ['executing', 'uat', 20, false, 10, 'platform'], ['queued', 'tdd', 20, false, 10, 'platform'],
   ]);
   assert.deepEqual(marks.map((mark) => mark.text), ['demo-ui 2.4.76 waits for a sign-off in prod', 'deploying demo-ui 2.4.76 to uat', 'demo-ui 2.4.76 is queued for tdd']);
   assert.deepEqual([marks[0].waitsFor, marks[0].responsible, marks[0].startedBy, marks[0].url, marks[0].ended], ['sign-off', 'demo approvers', 'demo-github', 'https://octopus.example/tasks/waiting', false]);
   assert.deepEqual([marks[1].waitsFor, marks[1].responsible], ['', '']);
   // A wait with nothing said about it counts from when the deployment started; a time that is none gives no age.
-  assert.equal(fleetMarks(acting({ inFlight: [flying('waiting', 'prod')] }), now)[0].minutes, 20);
-  assert.deepEqual(fleetMarks(acting({ inFlight: [{ project: 'demo-ui', release: '1', environment: 'tdd', state: 'executing', since: '' }] }), now).map((mark) => [mark.minutes, mark.url, mark.startedBy]), [[null, '', '']]);
-  assert.deepEqual(fleetMarks(system(), now), []);
-  assert.deepEqual(fleetMarks(system({ activity: null }), now), []);
-  assert.deepEqual(fleetMarks(system({ activity: { read: READ } }), now), []);
+  assert.equal(platformMarks(acting({ inFlight: [flying('waiting', 'prod')] }), now)[0].minutes, 20);
+  assert.deepEqual(platformMarks(acting({ inFlight: [{ project: 'demo-ui', release: '1', environment: 'tdd', state: 'executing', since: '' }] }), now).map((mark) => [mark.minutes, mark.url, mark.startedBy]), [[null, '', '']]);
+  assert.deepEqual(platformMarks(system(), now), []);
+  assert.deepEqual(platformMarks(system({ activity: null }), now), []);
+  assert.deepEqual(platformMarks(system({ activity: { read: READ } }), now), []);
 });
 
-test('a reading of the fleet older than half an hour is said in the past tense, with its age', () => {
+test('a reading of the platform older than half an hour is said in the past tense, with its age', () => {
   const later = new Date('2026-10-07T14:50:00Z');
   const one = acting({ inFlight: [flying('executing', 'uat'), flying('queued', 'tdd'), flying('waiting', 'prod', { waitsFor: signOff }), flying('waiting', 'prod', { release: '9', waitsFor: { kind: 'guided failure' } })] });
-  assert.equal(FLEET_FRESH_MINUTES, 30);
-  assert.deepEqual(fleetMarks(one, new Date('2026-10-07T12:20:00Z')).map((mark) => mark.past), [false, false, false, false]);
-  const marks = fleetMarks(one, later);
+  assert.equal(PLATFORM_FRESH_MINUTES, 30);
+  assert.deepEqual(platformMarks(one, new Date('2026-10-07T12:20:00Z')).map((mark) => mark.past), [false, false, false, false]);
+  const marks = platformMarks(one, later);
   assert.deepEqual(marks.map((mark) => mark.past), [true, true, true, true]);
   assert.deepEqual(marks.map((mark) => mark.text), [
-    'demo-ui 2.4.76 waited for a sign-off in prod when the fleet read it 3 h ago', 'demo-ui 9 waited for a person in prod when the fleet read it 3 h ago',
-    'demo-ui 2.4.76 was deploying to uat when the fleet read it 3 h ago', 'demo-ui 2.4.76 was queued for tdd when the fleet read it 3 h ago',
+    'demo-ui 2.4.76 waited for a sign-off in prod when the platform read it 3 h ago', 'demo-ui 9 waited for a person in prod when the platform read it 3 h ago',
+    'demo-ui 2.4.76 was deploying to uat when the platform read it 3 h ago', 'demo-ui 2.4.76 was queued for tdd when the platform read it 3 h ago',
   ]);
-  assert.equal(fleetMarks(one, now)[1].text, 'demo-ui 9 waits for a person in prod');
+  assert.equal(platformMarks(one, now)[1].text, 'demo-ui 9 waits for a person in prod');
   // A reading with no time is not of now either.
-  const undated = fleetMarks(system({ activity: { inFlight: [flying('executing', 'uat')] } }), now);
-  assert.deepEqual([undated[0].past, undated[0].read, undated[0].text], [true, null, 'demo-ui 2.4.76 was deploying to uat when the fleet read it']);
-  assert.equal(fleetText({ project: 'a', release: '1', environment: 'tdd', state: 'executing', past: false, minutes: 1 }), 'deploying a 1 to tdd');
+  const undated = platformMarks(system({ activity: { inFlight: [flying('executing', 'uat')] } }), now);
+  assert.deepEqual([undated[0].past, undated[0].read, undated[0].text], [true, null, 'demo-ui 2.4.76 was deploying to uat when the platform read it']);
+  assert.equal(platformText({ project: 'a', release: '1', environment: 'tdd', state: 'executing', past: false, minutes: 1 }), 'deploying a 1 to tdd');
 });
 
-test('the system\'s own file wins over the fleet\'s reading; the fleet\'s is used where a system publishes none', () => {
+test('the system\'s own file wins over the platform\'s reading; the platform\'s is used where a system publishes none', () => {
   const one = acting({ inFlight: [flying('executing', 'uat')] });
   const file = { deployments: [{ project: 'demo-ui', environment: 'prod', release: '2.4.76', state: 'waiting', since: '2026-10-07T11:55:00Z', url: 'https://octopus.example/x' }] };
   assert.deepEqual(flightMarks(one, file, now, false).map((mark) => [mark.source, mark.state, mark.environment]), [['system', 'waiting', 'prod']]);
-  // A file that says nothing is in flight says so: what the fleet read earlier is not shown against it.
+  // A file that says nothing is in flight says so: what the platform read earlier is not shown against it.
   assert.deepEqual(flightMarks(one, { deployments: [] }, now, false), []);
-  assert.deepEqual(flightMarks(one, undefined, now, false).map((mark) => [mark.source, mark.state, mark.environment]), [['fleet', 'executing', 'uat']]);
-  // Old data of the fleet is not a reading: nothing is claimed from it. The system's own file still is.
+  assert.deepEqual(flightMarks(one, undefined, now, false).map((mark) => [mark.source, mark.state, mark.environment]), [['platform', 'executing', 'uat']]);
+  // Old data of the platform is not a reading: nothing is claimed from it. The system's own file still is.
   assert.deepEqual(flightMarks(one, undefined, now, true), []);
   assert.equal(flightMarks(one, file, now, true).length, 1);
   const marks = [{ state: 'executing', ended: false }, { state: 'succeeded', ended: true }, { state: 'waiting', ended: false, past: true }];
@@ -518,15 +518,15 @@ test('the system\'s own file wins over the fleet\'s reading; the fleet\'s is use
 });
 
 test('a deployment in flight as a line of the box: who waits where, what is deploying, what is queued', () => {
-  const marks = fleetMarks(acting({ inFlight: [
+  const marks = platformMarks(acting({ inFlight: [
     flying('waiting', 'prod', { waitsFor: signOff }), flying('executing', 'uat'), flying('queued', 'tdd'), flying('waiting', 'uat', { waitsFor: { kind: 'guided failure', since: '' } }),
   ] }), now);
   const lines = marks.map((mark) => flightLine(mark, 'demo'));
   assert.deepEqual(lines.map((line) => [line.kind, line.text]), [
     ['waiting', 'prod waits for a sign-off, 12 min'], ['waiting', 'uat waits for a person'], ['deploying', 'deploying ui 2.4.76 to uat'], ['queued', 'ui 2.4.76 queued for tdd'],
   ]);
-  assert.equal(lines[0].title, 'demo-ui 2.4.76 waits for a sign-off in prod; responsible: demo approvers; started by demo-github (the fleet\'s reading of Octopus)');
-  assert.equal(lines[0].source, 'fleet');
+  assert.equal(lines[0].title, 'demo-ui 2.4.76 waits for a sign-off in prod; responsible: demo approvers; started by demo-github (the platform\'s reading of Octopus)');
+  assert.equal(lines[0].source, 'platform');
   // From the system's own file: the same words, and the title says where it is from. A state the page does not know is said as it is.
   const own = flightMarks(system(), { deployments: [
     { project: 'demo-ui', environment: 'prod', release: '2.4.76', state: 'waiting', since: '2026-10-07T11:55:00Z' },
@@ -535,12 +535,12 @@ test('a deployment in flight as a line of the box: who waits where, what is depl
   assert.deepEqual(own.map((line) => [line.kind, line.text, line.source]), [['waiting', 'prod waits for a sign-off, 5 min', 'system'], ['queued', 'ui 2.4.76 in uat: paused', 'system']]);
   assert.equal(own[0].title, 'demo-ui 2.4.76 waits for a sign-off in prod (the system\'s own deployments.json)');
   assert.equal(flightLine({ project: 'a', release: '1', environment: 'tdd', state: 'executing', source: 'other', text: 'deploying a 1 to tdd' }, 'demo').title, 'deploying a 1 to tdd (other)');
-  // An old reading of the fleet, in the past tense.
-  const old = fleetMarks(acting({ inFlight: [flying('waiting', 'prod', { waitsFor: signOff }), flying('executing', 'uat'), flying('queued', 'tdd')] }), new Date('2026-10-07T14:50:00Z')).map((mark) => flightLine(mark, 'demo'));
+  // An old reading of the platform, in the past tense.
+  const old = platformMarks(acting({ inFlight: [flying('waiting', 'prod', { waitsFor: signOff }), flying('executing', 'uat'), flying('queued', 'tdd')] }), new Date('2026-10-07T14:50:00Z')).map((mark) => flightLine(mark, 'demo'));
   assert.deepEqual(old.map((line) => [line.kind, line.text]), [
     ['earlier', 'prod waited for a sign-off when read 3 h ago'], ['earlier', 'was deploying ui 2.4.76 to uat when read 3 h ago'], ['earlier', 'ui 2.4.76 was queued for tdd when read 3 h ago'],
   ]);
-  assert.equal(flightLine(fleetMarks(system({ activity: { inFlight: [flying('executing', 'uat')] } }), now)[0], 'demo').text, 'was deploying ui 2.4.76 to uat when read');
+  assert.equal(flightLine(platformMarks(system({ activity: { inFlight: [flying('executing', 'uat')] } }), now)[0], 'demo').text, 'was deploying ui 2.4.76 to uat when read');
 });
 
 test('the time of a freeze is short and in UTC: the day of the week, or the date when that would not say which', () => {
@@ -560,30 +560,30 @@ test('a freeze is said while it is in force and before it begins, once for freez
     { name: 'everything', from: '2026-10-08T00:00:00Z', to: '2026-10-09T00:00:00Z' },
   ] });
   assert.deepEqual(freezeLines(one, now), [
-    { kind: 'freeze', text: 'tdd, uat frozen until Thu 00:00 UTC', title: 'Deployment freeze "audit": 2026-10-06T00:00:00Z to 2026-10-08T00:00:00Z (the fleet\'s reading of Octopus)', source: 'fleet' },
-    { kind: 'freeze', text: 'deployments freezes Thu 00:00 UTC', title: 'Deployment freeze "everything": 2026-10-08T00:00:00Z to 2026-10-09T00:00:00Z (the fleet\'s reading of Octopus)', source: 'fleet' },
-    { kind: 'freeze', text: 'prod freezes Sat 00:00 UTC', title: 'Deployment freeze "weekend ui" (demo-ui), "weekend api" (demo-api): 2026-10-10T00:00:00Z to 2026-10-12T00:00:00Z (the fleet\'s reading of Octopus)', source: 'fleet' },
+    { kind: 'freeze', text: 'tdd, uat frozen until Thu 00:00 UTC', title: 'Deployment freeze "audit": 2026-10-06T00:00:00Z to 2026-10-08T00:00:00Z (the platform\'s reading of Octopus)', source: 'platform' },
+    { kind: 'freeze', text: 'deployments freezes Thu 00:00 UTC', title: 'Deployment freeze "everything": 2026-10-08T00:00:00Z to 2026-10-09T00:00:00Z (the platform\'s reading of Octopus)', source: 'platform' },
+    { kind: 'freeze', text: 'prod freezes Sat 00:00 UTC', title: 'Deployment freeze "weekend ui" (demo-ui), "weekend api" (demo-api): 2026-10-10T00:00:00Z to 2026-10-12T00:00:00Z (the platform\'s reading of Octopus)', source: 'platform' },
   ]);
-  // The page decides by its own clock, not by what was true when the fleet read: a freeze that has begun since is in force.
+  // The page decides by its own clock, not by what was true when the platform read: a freeze that has begun since is in force.
   assert.deepEqual(freezeLines(one, new Date('2026-10-10T08:00:00Z')).map((line) => line.text), ['prod frozen until Mon 00:00 UTC']);
   assert.deepEqual(freezeLines(system(), now), []);
 });
 
-test('the last thing that happened: the newest of what the system\'s file says ended and of what the fleet read', () => {
+test('the last thing that happened: the newest of what the system\'s file says ended and of what the platform read', () => {
   const one = acting({ recent: [ended('succeeded', 'prod', '2026-10-07T11:40:00Z'), ended('failed', 'tdd', '2026-10-07T09:00:00Z')] });
   assert.deepEqual(lastLine(one, [], now, false), {
-    kind: 'last', text: 'last: ui 2.4.75 to prod, 20 min ago', title: 'demo-ui 2.4.75 to prod, 20 min ago; started by pat (the fleet\'s reading of Octopus)', source: 'fleet',
+    kind: 'last', text: 'last: ui 2.4.75 to prod, 20 min ago', title: 'demo-ui 2.4.75 to prod, 20 min ago; started by pat (the platform\'s reading of Octopus)', source: 'platform',
   });
   const file = { deployments: [{ project: 'demo-ui', environment: 'uat', release: '2.4.76', state: 'failed', since: '2026-10-07T11:50:00Z', finished: '2026-10-07T11:55:00Z' }] };
   assert.deepEqual(lastLine(one, flightMarks(one, file, now, false), now, false), {
     kind: 'last failed', text: 'last: ui 2.4.76 failed in uat, 5 min ago', title: 'demo-ui 2.4.76 failed in uat, 5 min ago (the system\'s own deployments.json)', source: 'system',
   });
-  // What the fleet read is newer than what the system's file still holds: then that is the last.
+  // What the platform read is newer than what the system's file still holds: then that is the last.
   const newer = acting({ recent: [ended('canceled', 'prod', '2026-10-07T11:58:00Z', { startedBy: '' })] });
   assert.deepEqual([lastLine(newer, flightMarks(newer, file, now, false), now, false).text, lastLine(newer, [], now, false).title], [
-    'last: ui 2.4.75 canceled in prod, 2 min ago', 'demo-ui 2.4.75 canceled in prod, 2 min ago (the fleet\'s reading of Octopus)',
+    'last: ui 2.4.75 canceled in prod, 2 min ago', 'demo-ui 2.4.75 canceled in prod, 2 min ago (the platform\'s reading of Octopus)',
   ]);
-  // Old data of the fleet says nothing; the system's own file still does. Nothing read is no line.
+  // Old data of the platform says nothing; the system's own file still does. Nothing read is no line.
   assert.equal(lastLine(one, [], now, true), null);
   assert.equal(lastLine(one, flightMarks(one, file, now, true), now, true).source, 'system');
   assert.equal(lastLine(system(), [], now, false), null);
@@ -605,17 +605,17 @@ test('a box says at most two things about its activity, the most urgent first, a
   // Nothing in flight: the freeze, then the last thing that happened.
   assert.deepEqual(said(acting({ freezes, recent })).lines.map((line) => line.text), ['prod frozen until Mon 00:00 UTC', 'last: ui 2.4.75 to prod, 20 min ago']);
   assert.deepEqual(said(acting({ recent })).lines.map((line) => line.text), ['last: ui 2.4.75 to prod, 20 min ago']);
-  // What the fleet read too long ago comes after a freeze, in the past tense, and there is no "last" beside it.
+  // What the platform read too long ago comes after a freeze, in the past tense, and there is no "last" beside it.
   const later = new Date('2026-10-07T14:50:00Z');
   assert.deepEqual(said(deploying, undefined, later).lines.map((line) => [line.kind, line.text]), [['freeze', 'prod frozen until Mon 00:00 UTC'], ['earlier', 'was deploying ui 2.4.76 to uat when read 3 h ago']]);
-  // The system's own file wins: what it says is in flight, and not what the fleet read; the freeze is the fleet's.
+  // The system's own file wins: what it says is in flight, and not what the platform read; the freeze is the platform's.
   const file = { deployments: [{ project: 'demo-ui', environment: 'tdd', release: '2.4.77', state: 'executing', since: '2026-10-07T11:58:00Z' }] };
-  assert.deepEqual(said(deploying, file).lines.map((line) => [line.text, line.source]), [['deploying ui 2.4.77 to tdd', 'system'], ['prod frozen until Mon 00:00 UTC', 'fleet']]);
+  assert.deepEqual(said(deploying, file).lines.map((line) => [line.text, line.source]), [['deploying ui 2.4.77 to tdd', 'system'], ['prod frozen until Mon 00:00 UTC', 'platform']]);
   assert.deepEqual(said(deploying, { deployments: [] }).lines.map((line) => line.text), ['prod frozen until Mon 00:00 UTC', 'last: ui 2.4.75 to prod, 20 min ago']);
   // Two deployments that say the same in a box are one line.
   const twice = acting({ inFlight: [flying('waiting', 'prod', { waitsFor: signOff }), flying('waiting', 'prod', { project: 'demo-api', waitsFor: signOff })] });
   assert.deepEqual(said(twice).lines.map((line) => line.text), ['prod waits for a sign-off, 12 min']);
-  // Old data of the fleet says nothing; data without activity says nothing, as before.
+  // Old data of the platform says nothing; data without activity says nothing, as before.
   assert.deepEqual(said(busy, undefined, now, true), { lines: [], more: 0 });
   assert.deepEqual(said(system()), { lines: [], more: 0 });
   assert.deepEqual(said(acting({})), { lines: [], more: 0 });
@@ -623,14 +623,14 @@ test('a box says at most two things about its activity, the most urgent first, a
 
 test('an environment with something in flight is known by its name, and a project in it by both', () => {
   const marks = [
-    ...fleetMarks(acting({ inFlight: [flying('queued', 'UAT'), flying('executing', 'uat', { project: 'demo-api' }), flying('waiting', 'prod', { waitsFor: signOff }), flying('executing', 'prod')] }), now),
+    ...platformMarks(acting({ inFlight: [flying('queued', 'UAT'), flying('executing', 'uat', { project: 'demo-api' }), flying('waiting', 'prod', { waitsFor: signOff }), flying('executing', 'prod')] }), now),
     { project: 'demo-ui', environment: 'tdd', state: 'succeeded', ended: true, minutes: 2 },
   ];
   assert.deepEqual(tileFlights(marks), { prod: 'waiting', uat: 'executing' });
   assert.deepEqual(cellFlights(marks), { 'demo-ui / prod': 'waiting', 'demo-api / uat': 'executing', 'demo-ui / uat': 'queued' });
   assert.equal(cellKey('Demo-UI', 'Prod'), 'demo-ui / prod');
-  // What the fleet read too long ago marks nothing.
-  const old = fleetMarks(acting({ inFlight: [flying('executing', 'uat')] }), new Date('2026-10-07T14:50:00Z'));
+  // What the platform read too long ago marks nothing.
+  const old = platformMarks(acting({ inFlight: [flying('executing', 'uat')] }), new Date('2026-10-07T14:50:00Z'));
   assert.deepEqual([tileFlights(old), cellFlights(old)], [{}, {}]);
   assert.deepEqual([flightWord('prod', 'waiting'), flightWord('uat', 'executing'), flightWord('tdd', 'queued'), flightWord('tdd', 'paused')], [
     'prod: waits for a person', 'uat: deploying now', 'tdd: a deployment is queued', 'tdd: paused',
@@ -642,12 +642,12 @@ test('the Octopus instance says what it is doing beside its count against the ca
   assert.equal(instanceLine(service({ executing: 2, queued: 0, waiting: 1, cap: 20 }), false), '2 running · 1 waits for a person');
   assert.equal(instanceLine(service({ executing: 1, queued: 3, waiting: 2, cap: 20 }), false), '1 running · 3 queued · 2 wait for a person');
   assert.equal(instanceLine(service({ executing: 0, queued: 0, waiting: 0, cap: 20 }), false), '0 running');
-  // What the fleet's account could not read is not said, and old data says nothing.
+  // What the platform's account could not read is not said, and old data says nothing.
   assert.equal(instanceLine(service({ executing: null, queued: null, waiting: 1, cap: null }), false), '1 waits for a person');
   assert.equal(instanceLine(service({ executing: 2, queued: 0, waiting: 1 }), true), '');
   assert.equal(instanceLine(service(null), false), '');
   assert.equal(instanceLine({ id: 'kit' }, false), '');
-  const data = { fleet: {}, systems: [], shared: { services: [service({ executing: 2, queued: 0, waiting: 1, cap: 20 }), { id: 'kit', name: 'Delivery standard', state: 'ok', detail: '' }] } };
+  const data = { platform: {}, systems: [], shared: { services: [service({ executing: 2, queued: 0, waiting: 1, cap: 20 }), { id: 'kit', name: 'Delivery standard', state: 'ok', detail: '' }] } };
   assert.deepEqual(landscape(data, false, now).services.map((one) => one.acts), ['2 running · 1 waits for a person', undefined]);
   assert.deepEqual(landscape(data, true, now).services.map((one) => 'acts' in one), [false, false]);
 });
